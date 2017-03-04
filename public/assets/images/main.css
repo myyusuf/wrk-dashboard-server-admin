@@ -1,0 +1,75 @@
+body, #header, #top-menu, #menu, #footer, #content {
+  position:fixed;
+  margin:0;
+  padding:0;
+}
+#header {
+  /* background-color: #f1f3fa; */
+  background-color: #F4F4F4;
+  /*background-color: #f0f0f0;*/
+  top:0;
+  left:0;
+  right:0;
+  width:auto;
+  height: 40px;
+}
+#top-menu {
+  background-color: #f1f3fa;
+  top:0px;
+  left:0;
+  right:0;
+  width:auto;
+  height:0px;
+}
+#menu {
+  background-color: black;
+  left:0;
+  top:40px;
+  bottom:25px;
+  height:auto;
+  width:200px;
+}
+#footer {
+  background-color: #D8D8D8;
+  bottom:0;
+  left:0;
+  right:0;
+  width:auto;
+  height:25px;
+}
+#content {
+  background-color: gray;
+  right:0;
+  top:40px;
+  bottom:25px;
+  left: 0px;
+  min-width:200px;
+  min-height:200px;
+  height:auto;
+  width:auto;
+}
+.logo-small{
+  padding-top: 13px;
+  padding-left: 10px;
+
+}
+
+#left-content{
+  border: 0;
+  width: 202px;
+
+}
+
+#right-content{
+  border: 0;
+  margin-left: -1px;
+
+}
+
+.jqx-notification-container {
+    z-index: 20000;
+}
+
+/*.jqx-tree{
+  border: 0;
+}*/
