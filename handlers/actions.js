@@ -2,30 +2,69 @@ const Wreck = require('wreck');
 
 exports.login = function (request, reply) {
 
-  const apiUrl = this.apiBaseUrl + '/login';
+  const sql = 'SELECT * FROM tb_admin_user WHERE username = ?';
 
-  Wreck.post(apiUrl, {
-      payload: JSON.stringify(request.payload),
-      json: true
-  }, (err, res, payload) => {
+  this.db.query(sql, [request.payload.username], (err, result) => {
 
       if (err) {
           throw err;
       }
 
-      // console.log('Payload : ' + JSON.stringify(payload));
+      var user = null;
+      if(result.length > 0){
+        user = result[0];
+      }
 
-      if (res.statusCode !== 200) {
+      if (!user) {
           return reply.redirect(this.webBaseUrl + '/login');
       }
 
+      // Bcrypt.compare(request.payload.password, user.password, (err, res) => {
+      //
+      //     if (err) {
+      //         throw err;
+      //     }
+      //
+      //     if (!res) {
+      //         return reply('Not authorized').code(401);
+      //     }
+      //
+      //     reply({
+      //         token: user.token,
+      //         username: user.username
+      //     });
+      // });
+
       request.cookieAuth.set({
-          token: payload.token,
-          username: payload.username,
-          scope: ['adminweb']
-      });
+              username: user.username,
+              scope: [user.role]
+          });
+
       reply.redirect(this.webBaseUrl);
   });
+
+  // const apiUrl = this.apiBaseUrl + '/login';
+  //
+  // Wreck.post(apiUrl, {
+  //     payload: JSON.stringify(request.payload),
+  //     json: true
+  // }, (err, res, payload) => {
+  //
+  //     if (err) {
+  //         throw err;
+  //     }
+  //
+  //     if (res.statusCode !== 200) {
+  //         return reply.redirect(this.webBaseUrl + '/login');
+  //     }
+  //
+  //     request.cookieAuth.set({
+  //         token: payload.token,
+  //         username: payload.username,
+  //         scope: ['adminweb']
+  //     });
+  //     reply.redirect(this.webBaseUrl);
+  // });
 };
 
 exports.logout = function (request, reply) {

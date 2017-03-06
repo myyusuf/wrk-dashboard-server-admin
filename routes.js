@@ -4,6 +4,8 @@ const ExcelReader = require('./handlers/excelreader');
 const Pages = require('./handlers/pages');
 const Actions = require('./handlers/actions');
 const Assets = require('./handlers/assets');
+
+const Project = require('./handlers/api/project');
 // const ProjectProgress = require('./handlers/project_progress');
 
 module.exports = [
@@ -23,9 +25,30 @@ module.exports = [
         }
   },
   {
+      method: 'POST',
+      path: '/api/projects',
+      handler: Project.create
+  },
+  {
       method: 'GET',
-      path: '/projects',
-      handler: Pages.projects,
+      path: '/api/projects',
+      handler: Project.find,
+      config: {
+          auth: {
+            strategy: 'session',
+            scope: ['ho']
+          }
+      }
+  },
+  {
+      method: 'PUT',
+      path: '/api/projects/{code}',
+      handler: Project.update
+  },
+  {
+      method: 'DELETE',
+      path: '/api/projects/{code}',
+      handler: Project.delete
   },
   {
       method: 'GET',

@@ -1043,11 +1043,13 @@
 
 	      var _this = this;
 
-	      var url = "/projects";
+	      var url = "/api/projects";
 
 	      var source = {
 	        datatype: "json",
-	        datafields: [{ name: 'id', type: 'int' }, { name: 'code', type: 'string' }, { name: 'name', type: 'string' }, { name: 'project_type', type: 'int' }, { name: 'description', type: 'string' }],
+	        datafields: [{ name: 'id', type: 'int' }, { name: 'code', type: 'string' }, { name: 'name', type: 'string' },
+	        // { name: 'project_type', type: 'int' },
+	        { name: 'description', type: 'string' }],
 	        id: "id",
 	        url: url
 	      };
@@ -1087,7 +1089,9 @@
 	        rendergridrows: function rendergridrows(params) {
 	          return params.data;
 	        },
-	        columns: [{ text: 'Kode', datafield: 'code', width: '20%' }, { text: 'Nama', datafield: 'name', width: '20%' }, { text: 'Tipe', datafield: 'project_type', cellsrenderer: cellsrenderer, width: '30%' }, { text: 'Deskripsi', datafield: 'description', width: '30%' }],
+	        columns: [{ text: 'Kode', datafield: 'code', width: '30%' }, { text: 'Nama', datafield: 'name', width: '30%' },
+	        // { text: 'Tipe', datafield: 'project_type', cellsrenderer: cellsrenderer, width: '30%' },
+	        { text: 'Deskripsi', datafield: 'description', width: '40%' }],
 	        groups: []
 	      };
 
@@ -1109,7 +1113,7 @@
 
 	      var searchTextBox = new _TextBox2.default({ placeHolder: 'Kode atau Nama', width: 250, height: 24 });
 	      var searchButton = new _Button2.default({
-	        imgSrc: '/pcd_assets/images/search.png',
+	        imgSrc: '/assets/images/search.png',
 	        theme: 'metro',
 	        width: 30,
 	        height: 26,
@@ -1317,7 +1321,7 @@
 
 	    var codeTextBox = new _TextBox2.default({ height: 25, width: '90%' });
 	    var nameTextBox = new _TextBox2.default({ height: 25, width: '90%' });
-	    var projectTypeComboBox = new _ProjectTypeComboBox2.default({ height: 25, width: '92.5%' });
+	    // var projectTypeComboBox = new ProjectTypeComboBox({height: 25, width: '92.5%'});
 	    var descriptionTextBox = new _TextArea2.default({ height: 80, width: '92.5%' });
 
 	    var formItems = [{
@@ -1336,15 +1340,17 @@
 	        type: 'TEXTBOX',
 	        rule: 'required'
 	      }
-	    }, {
-	      name: 'project_type',
-	      label: 'Type',
-	      content: projectTypeComboBox,
-	      validation: {
-	        type: 'COMBOBOX',
-	        rule: 'required'
-	      }
-	    }, {
+	    },
+	    // {
+	    //   name: 'project_type',
+	    //   label: 'Type',
+	    //   content: projectTypeComboBox,
+	    //   validation:{
+	    //     type: 'COMBOBOX',
+	    //     rule: 'required'
+	    //   }
+	    // },
+	    {
 	      name: 'description',
 	      label: 'Description',
 	      content: descriptionTextBox
@@ -1978,7 +1984,7 @@
 
 	    var codeTextBox = new _TextBox2.default({ value: project.code, disabled: true, height: 25, width: '90%' });
 	    var nameTextBox = new _TextBox2.default({ value: project.name, height: 25, width: '90%' });
-	    var projectTypeComboBox = new _ProjectTypeComboBox2.default({ value: project.projectType, height: 80, width: '92.5%' });
+	    // var projectTypeComboBox = new ProjectTypeComboBox({value: project.projectType, height: 80, width: '92.5%'});
 	    var descriptionTextBox = new _TextArea2.default({ value: project.description, height: 80, width: '92.5%' });
 
 	    var formItems = [{
@@ -1997,15 +2003,17 @@
 	        type: 'TEXTBOX',
 	        rule: 'required'
 	      }
-	    }, {
-	      name: 'project_type',
-	      label: 'Type',
-	      content: projectTypeComboBox,
-	      validation: {
-	        type: 'COMBOBOX',
-	        rule: 'required'
-	      }
-	    }, {
+	    },
+	    // {
+	    //   name: 'project_type',
+	    //   label: 'Type',
+	    //   content: projectTypeComboBox,
+	    //   validation:{
+	    //     type: 'COMBOBOX',
+	    //     rule: 'required'
+	    //   }
+	    // },
+	    {
 	      name: 'description',
 	      label: 'Description',
 	      content: descriptionTextBox
