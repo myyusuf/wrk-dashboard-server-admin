@@ -6,13 +6,14 @@ const Actions = require('./handlers/actions');
 const Assets = require('./handlers/assets');
 
 const Project = require('./handlers/api/project');
+const ProjectProgress = require('./handlers/api/project_progress');
 // const ProjectProgress = require('./handlers/project_progress');
 
 module.exports = [
   {
     method: 'GET',
-    path: '/convert',
-    handler: ExcelReader.readExcel
+    path: '/convert_ho',
+    handler: ExcelReader.readExcelHO
   },
   {
       method: 'GET',
@@ -70,18 +71,18 @@ module.exports = [
       path: '/{param*}',
       handler: Assets.servePublicDirectory
   },
-  // {
-  //     method: 'POST',
-  //     path: '/project_progress/upload',
-  //     handler: ProjectProgress.upload,
-  //     config: {
-  //         payload: {
-  //             parse: true,
-  //             output: 'file',
-  //             maxBytes: 4194304
-  //         }
-  //     }
-  // },
+  {
+      method: 'POST',
+      path: '/project_progress/upload',
+      handler: ProjectProgress.upload,
+      config: {
+          payload: {
+              parse: true,
+              output: 'file',
+              maxBytes: 4194304
+          }
+      }
+  },
   {
       method: 'GET',
       path: '/hello',

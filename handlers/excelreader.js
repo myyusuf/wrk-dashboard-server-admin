@@ -2,9 +2,7 @@
 
 var XLSX = require('xlsx');
 
-exports.readExcel = function (request, reply) {
-
-    const fileName = '/Users/myyusuf/Documents/Projects/wika_rekon/dashboard/documents/fix/Template_HO.xlsx';
+exports.readExcelHO = function (fileName, db){
 
     var workbook = XLSX.readFile(fileName);
 
@@ -72,5 +70,5 @@ exports.readExcel = function (request, reply) {
     result.totalKontrakDihadapi.total = getNetProfit(worksheet, 'E', 4);
     result.totalKontrakDihadapi.ekstern = getNetProfit(worksheet, 'E', 10);
 
-    reply(result);
+    console.log(JSON.stringify(result));
 };

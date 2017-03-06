@@ -2379,7 +2379,7 @@
 
 	      var searchTextBox = new _TextBox2.default({ placeHolder: 'Kode atau Nama', width: 250, height: 24 });
 	      var searchButton = new _Button2.default({
-	        imgSrc: '/pcd_assets/images/search.png',
+	        imgSrc: '/assets/images/search.png',
 	        theme: 'metro',
 	        width: 30,
 	        height: 26,
