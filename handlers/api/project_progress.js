@@ -19,10 +19,8 @@ exports.upload = function(request, reply){
       const user = request.auth.credentials;
       const role = user.scope[0];
 
-      reply({ status: 'ok' });
-
-      if(role == 'ho'){
-        ExcelReader.readExcelHO(targetPath, this.db);
+      if(role == 'HO'){
+        ExcelReader.readExcelHO(targetPath, this.db, user, reply);
       }
   });
 }

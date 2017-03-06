@@ -2,7 +2,7 @@
 
 var XLSX = require('xlsx');
 
-exports.readExcelHO = function (fileName, db){
+exports.readExcelHO = function (fileName, db, user, reply){
 
     var workbook = XLSX.readFile(fileName);
 
@@ -67,8 +67,29 @@ exports.readExcelHO = function (fileName, db){
       }
     };
 
+    const month = worksheet['B2'].v
+    const year = worksheet['C2'].v
+
     result.totalKontrakDihadapi.total = getNetProfit(worksheet, 'E', 4);
     result.totalKontrakDihadapi.ekstern = getNetProfit(worksheet, 'E', 10);
 
     console.log(JSON.stringify(result));
+
+    var projectProgress = {
+      year: year,
+      month: month,
+      username: user.username,
+      key: user.scope[0],
+      created_time: new Date()
+    };
+
+    db.query('INSERT INTO project_progress SET ?', projectProgress, function(err, result){
+      if(err){
+        console.log(err);
+        reply('Error while doing operation, Ex. non unique value').code(500);
+      }else{
+        reply({ status: 'ok' });
+      }
+    });
+
 };
