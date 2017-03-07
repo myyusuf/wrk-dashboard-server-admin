@@ -37,7 +37,7 @@ module.exports = [
       config: {
           auth: {
             strategy: 'session',
-            scope: ['ho']
+            scope: ['HO']
           }
       }
   },
@@ -82,6 +82,11 @@ module.exports = [
               maxBytes: 4194304
           }
       }
+  },
+  {
+      method: 'GET',
+      path: '/api/project_progress',
+      handler: ProjectProgress.find
   },
   {
       method: 'GET',

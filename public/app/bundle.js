@@ -2335,7 +2335,7 @@
 
 	      var source = {
 	        datatype: "json",
-	        datafields: [{ name: 'id', type: 'int' }, { name: 'project_code', type: 'string' }, { name: 'month', type: 'int' }, { name: 'year', type: 'int' }, { name: 'rkap_ok', type: 'float' }, { name: 'rkap_op', type: 'float' }, { name: 'rkap_lk', type: 'float' }, { name: 'prognosa_ok', type: 'float' }, { name: 'prognosa_op', type: 'float' }, { name: 'prognosa_lk', type: 'float' }, { name: 'realisasi_ok', type: 'float' }, { name: 'realisasi_op', type: 'float' }, { name: 'realisasi_lk', type: 'float' }, { name: 'description', type: 'string' }],
+	        datafields: [{ name: 'month', type: 'int' }, { name: 'year', type: 'int' }, { name: 'username', type: 'string' }, { name: 'key', type: 'string' }, { name: 'created_time', type: 'date' }],
 	        id: "id",
 	        url: url
 	      };
@@ -2345,7 +2345,7 @@
 	        return data;
 	      };
 
-	      var columnWidth = 100 / 12 + '%';
+	      var columnWidth = 100 / 5 + '%';
 	      var dataGridOptions = {
 	        width: '100%',
 	        height: '100%',
@@ -2357,8 +2357,7 @@
 	        rendergridrows: function rendergridrows(params) {
 	          return params.data;
 	        },
-	        columns: [{ text: 'Project Code', datafield: 'project_code', width: columnWidth }, { text: 'Bulan', datafield: 'month', width: columnWidth }, { text: 'Tahun', datafield: 'year', width: columnWidth }, { text: 'RKAP OK', datafield: 'rkap_ok', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'RKAP OP', datafield: 'rkap_op', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'RKAP LK', datafield: 'rkap_lk', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'Prognosa OK', datafield: 'prognosa_ok', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'Prognosa OP', datafield: 'prognosa_op', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'Prognosa LK', datafield: 'prognosa_lk', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'Realisasi OK', datafield: 'realisasi_ok', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'Realisasi OP', datafield: 'realisasi_op', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }, { text: 'Realisasi LK', datafield: 'realisasi_lk', width: columnWidth, cellsalign: 'right', cellsformat: 'd2' }],
-	        groups: ['project_code']
+	        columns: [{ text: 'Tahun', datafield: 'year', width: columnWidth }, { text: 'Bulan', datafield: 'month', width: columnWidth }, { text: 'Username', datafield: 'username', width: columnWidth }, { text: 'Key', datafield: 'key', width: columnWidth }, { text: 'Cretaed Time', datafield: 'created_time', cellsformat: 'dd-MM-yyyy hh:mm:ss', width: columnWidth }]
 	      };
 
 	      this.dataGrid = new _DataGrid2.default({
@@ -2377,7 +2376,7 @@
 	        dataGridOptions: dataGridOptions
 	      });
 
-	      var searchTextBox = new _TextBox2.default({ placeHolder: 'Kode atau Nama', width: 250, height: 24 });
+	      var searchTextBox = new _TextBox2.default({ placeHolder: 'Username', width: 250, height: 24 });
 	      var searchButton = new _Button2.default({
 	        imgSrc: '/assets/images/search.png',
 	        theme: 'metro',
@@ -2393,7 +2392,10 @@
 	        height: 35,
 	        width: 103,
 	        uploadUrl: 'project_progress/upload',
-	        fileInputName: 'progress'
+	        fileInputName: 'progress',
+	        uploadEnd: function uploadEnd(event) {
+	          _this.dataGrid.refresh();
+	        }
 	      });
 
 	      // var uploadButton = new Button({
@@ -2483,11 +2485,15 @@
 
 	    this.uploadUrl = options.uploadUrl;
 	    this.fileInputName = options.fileInputName;
+	    this.uploadEnd = options.uploadEnd;
 	  }
 
 	  _createClass(FileUpload, [{
 	    key: 'render',
 	    value: function render(container) {
+
+	      var _this = this;
+
 	      var fileUploadContainer = $('<div></div>');
 	      fileUploadContainer.attr('id', this.id);
 	      fileUploadContainer.appendTo(container);
@@ -2512,6 +2518,15 @@
 	      fileUploadOptions['autoUpload'] = true;
 
 	      fileUploadContainer.jqxFileUpload(fileUploadOptions);
+
+	      if (this.uploadEnd) {
+	        fileUploadContainer.on('uploadEnd', function (event) {
+	          // var args = event.args;
+	          // var fileName = args.file;
+	          // var serverResponse = args.response;
+	          _this.uploadEnd(event);
+	        });
+	      }
 
 	      this.component = fileUploadContainer;
 	    }
