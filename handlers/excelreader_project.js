@@ -35,6 +35,9 @@ exports.readExcel = function (fileName, db, user, reply){
               insertQmsl(workbook, db, year, month, callback);
             },
             function (callback) {
+              insertSheLevel(workbook, db, year, month, callback);
+            },
+            function (callback) {
 
               db.commit(function(err) {
                 if (err) {
@@ -219,6 +222,63 @@ var insertQmsl = function(workbook, db, year, month, callback){
   'ON DUPLICATE KEY ' +
   'UPDATE ? ',
   [db_mobile_qmsl, db_mobile_qmsl], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+
+}
+
+var insertSheLevel = function(workbook, db, year, month, callback){
+
+  var sheet_name = workbook.SheetNames[2];
+  var worksheet = workbook.Sheets[sheet_name];
+
+  var result = {
+    "sheLevel": []
+  };
+
+  var captionIdexes = [7, 8, 14, 15, 19, 26, 30, 41, 42, 45, 55, 56, 58, 59, 61, 62, 63, 70, 77, 82];
+
+  for(var i=6; i<=87; i++){
+
+    if(captionIdexes.indexOf(i) == -1){
+      var captionCellName = "B" + i;
+      var valueCellName = "C" + i;
+
+      var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
+      var value = getNumericExcelValue(worksheet, valueCellName);
+
+      var sheObj = {
+        "kriteria": uraian,
+        "avgVal": value,
+        "trend": "=",
+        "avgRank": 0
+      }
+
+      result.sheLevel.push(sheObj);
+    }
+
+  }
+
+  var data = JSON.stringify(result);
+
+  var idProyek = worksheet["B1"].v;
+
+  var db_mobile_she_level = {
+    id_proyek: idProyek,
+    bulan: month,
+    tahun: year,
+    data: data
+  };
+
+  db.query('INSERT INTO db_mobile_she_level SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [db_mobile_she_level, db_mobile_she_level], function(err, result){
     if(err){
       console.log(err);
       callback(err);
