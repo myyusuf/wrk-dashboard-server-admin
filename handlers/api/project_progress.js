@@ -3,7 +3,8 @@ const Fs = require('fs');
 
 var WRKConstant = require('../../config/wrk_constant.js');
 
-var ExcelReader = require('../excelreader.js');
+var ExcelReaderHO = require('../excelreader.js');
+var ExcelReaderPRJ = require('../excelreader_project.js');
 
 exports.upload = function(request, reply){
   // console.log(JSON.stringify(request.payload));
@@ -20,7 +21,9 @@ exports.upload = function(request, reply){
       const role = user.scope[0];
 
       if(role == 'HO'){
-        ExcelReader.readExcelHO(targetPath, this.db, user, reply);
+        ExcelReaderHO.readExcel(targetPath, this.db, user, reply);
+      }else if(role == 'PRJ'){
+        ExcelReaderPRJ.readExcel(targetPath, this.db, user, reply);
       }
   });
 }

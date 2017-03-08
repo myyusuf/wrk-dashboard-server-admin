@@ -3,7 +3,7 @@
 var Flow = require('nimble');
 var XLSX = require('xlsx');
 
-exports.readExcelHO = function (fileName, db, user, reply){
+exports.readExcel = function (fileName, db, user, reply){
 
     var workbook = XLSX.readFile(fileName);
 
@@ -132,7 +132,7 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
 
   var data = JSON.stringify(result);
 
-  console.log(data);
+  // console.log(data);
 
   var db_mobile_total_kontrak_dihadapi = {
     id_proyek: 'WGPUS001',
@@ -140,18 +140,6 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
     tahun: year,
     data: data
   };
-
-  // db.query('INSERT INTO db_mobile_total_kontrak_dihadapi SET ? ' +
-  // 'ON DUPLICATE KEY ' +
-  // 'UPDATE id_proyek = ?, bulan = ?, tahun = ?, data = ? ',
-  // db_mobile_total_kontrak_dihadapi, 'WGPUS001', month, year, data, function(err, result){
-  //   if(err){
-  //     console.log(err);
-  //     callback(err);
-  //   }else{
-  //     callback();
-  //   }
-  // });
 
   db.query('INSERT INTO db_mobile_total_kontrak_dihadapi SET ? ' +
   'ON DUPLICATE KEY ' +
@@ -164,18 +152,5 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
       callback();
     }
   });
-
-  // db.query('INSERT INTO wrk_dashboard.tb_admin_user ' +
-  //         'SET name = "Yusuf", username = "yusuf", email = "myyusuf1911@gmail.com", password = "admin", role = "HO" ' +
-  //         'ON DUPLICATE KEY ' +
-  //         'UPDATE email = "test" ',
-  // db_mobile_total_kontrak_dihadapi, 'WGPUS001', month, year, data, function(err, result){
-  //   if(err){
-  //     console.log(err);
-  //     callback(err);
-  //   }else{
-  //     callback();
-  //   }
-  // });
 
 }

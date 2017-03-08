@@ -6,7 +6,8 @@ exports.home = function (request, reply) {
 
   if (request.auth.isAuthenticated) {
     reply.view('index', {
-        user: request.auth.credentials.username
+        user: request.auth.credentials.username,
+        role: request.auth.credentials.scope[0]
     });
   }else{
     return reply.redirect(this.webBaseUrl + '/login');

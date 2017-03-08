@@ -13,7 +13,7 @@ module.exports = [
   {
     method: 'GET',
     path: '/convert_ho',
-    handler: ExcelReader.readExcelHO
+    handler: ExcelReader.readExcel
   },
   {
       method: 'GET',
