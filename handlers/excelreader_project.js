@@ -3,6 +3,14 @@
 var Flow = require('nimble');
 var XLSX = require('xlsx');
 
+var getNumericExcelValue = function(ws, cellName){
+  return ws[cellName] ? ws[cellName].v : 0;
+}
+
+var getStringExcelValue = function(ws, cellName){
+  return ws[cellName] ? ws[cellName].v : "";
+}
+
 exports.readExcel = function (fileName, db, user, reply){
 
     var workbook = XLSX.readFile(fileName);
@@ -22,6 +30,9 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertProjectInfoKonsFab(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertQmsl(workbook, db, year, month, callback);
             },
             function (callback) {
 
@@ -123,8 +134,15 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
   };
 
   var idProyek = worksheet["A2"].v;
+  var projectType = 1; // Kons & Fab
+  var status = worksheet["C2"].v;
+
+  var persenRaProgress = worksheet["E2"] ? worksheet["E2"].v : 0;
+  var persenRiProgress = worksheet["F2"] ? worksheet["F2"].v : 0;
 
   result.infoProyek.idProyek = idProyek;
+  result.infoProyek.persenRaProgress = getNumericExcelValue(worksheet, "E2");
+  result.infoProyek.persenRiProgress = getNumericExcelValue(worksheet, "G2");
 
   var data = JSON.stringify(result);
 
@@ -132,6 +150,8 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
 
   var db_mobile_info_proyek = {
     id_proyek: idProyek,
+    project_type: projectType,
+    status: status,
     bulan: month,
     tahun: year,
     data_proyek: data
@@ -141,6 +161,64 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
   'ON DUPLICATE KEY ' +
   'UPDATE ? ',
   [db_mobile_info_proyek, db_mobile_info_proyek], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+
+}
+
+var insertQmsl = function(workbook, db, year, month, callback){
+
+  var sheet_name = workbook.SheetNames[1];
+  var worksheet = workbook.Sheets[sheet_name];
+
+  var result = {
+    "qmsl": []
+  };
+
+  var captionIdexes = [10, 11, 17, 18, 28, 29, 31, 32, 39, 40, 45, 46, 51, 52];
+  for(var i=6; i<=58; i++){
+
+    if(captionIdexes.indexOf(i) == -1){
+      var captionCellName = "B" + i;
+      var valueCellName = "C" + i;
+
+      var uraian = getStringExcelValue(worksheet, captionCellName).substring(3);
+      var value = getNumericExcelValue(worksheet, valueCellName);
+
+      var qmslObj = {
+        "kriteria": uraian,
+        "avgVal": value,
+        "trend": "=",
+        "avgRank": 0
+      }
+
+      result.qmsl.push(qmslObj);
+    }
+
+  }
+
+  var data = JSON.stringify(result);
+
+  var idProyek = worksheet["B1"].v;
+
+  // console.log(data);
+
+  var db_mobile_qmsl = {
+    id_proyek: idProyek,
+    bulan: month,
+    tahun: year,
+    data: data
+  };
+
+  db.query('INSERT INTO db_mobile_qmsl SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [db_mobile_qmsl, db_mobile_qmsl], function(err, result){
     if(err){
       console.log(err);
       callback(err);
