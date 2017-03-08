@@ -38,6 +38,9 @@ exports.readExcel = function (fileName, db, user, reply){
               insertSheLevel(workbook, db, year, month, callback);
             },
             function (callback) {
+              insertLimaR(workbook, db, year, month, callback);
+            },
+            function (callback) {
 
               db.commit(function(err) {
                 if (err) {
@@ -279,6 +282,63 @@ var insertSheLevel = function(workbook, db, year, month, callback){
   'ON DUPLICATE KEY ' +
   'UPDATE ? ',
   [db_mobile_she_level, db_mobile_she_level], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+
+}
+
+var insertLimaR = function(workbook, db, year, month, callback){
+
+  var sheet_name = workbook.SheetNames[3];
+  var worksheet = workbook.Sheets[sheet_name];
+
+  var result = {
+    "limaR": []
+  };
+
+  var captionIdexes = [8, 14, 21];
+
+  for(var i=6; i<=142; i++){
+
+    if(captionIdexes.indexOf(i) == -1){
+      var captionCellName = "B" + i;
+      var valueCellName = "C" + i;
+
+      var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
+      var value = getNumericExcelValue(worksheet, valueCellName);
+
+      var sheObj = {
+        "kriteria": uraian,
+        "avgVal": value,
+        "trend": "=",
+        "avgRank": 0
+      }
+
+      result.limaR.push(sheObj);
+    }
+
+  }
+
+  var data = JSON.stringify(result);
+
+  var idProyek = worksheet["B1"].v;
+
+  var db_mobile_lima_r = {
+    id_proyek: idProyek,
+    bulan: month,
+    tahun: year,
+    data: data
+  };
+
+  db.query('INSERT INTO db_mobile_lima_r SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [db_mobile_lima_r, db_mobile_lima_r], function(err, result){
     if(err){
       console.log(err);
       callback(err);
