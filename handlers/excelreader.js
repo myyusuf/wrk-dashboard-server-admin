@@ -120,7 +120,13 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
     };
   };
 
-  var totalArray = [eksternLalu, joLalu, internLalu, eksternBaru, joBaru, internBaru];
+  var totalLaluArray = [eksternLalu, joLalu, internLalu];
+  var totalLalu= totalLaluArray.reduce(netProfitAdder);
+
+  var totalBaruArray = [eksternBaru, joBaru, internBaru];
+  var totalBaru = totalBaruArray.reduce(netProfitAdder);
+
+  var totalArray = [totalLalu, totalBaru];
   var total = totalArray.reduce(netProfitAdder);
 
   var eksternArray = [eksternLalu, eksternBaru];
@@ -132,35 +138,114 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
   var internArray = [internLalu, internBaru];
   var intern = internArray.reduce(netProfitAdder);
 
-  var result = {
+  var result1 = {
     "totalKontrakDihadapi": {}
   };
 
-  result.totalKontrakDihadapi['total'] = total;
-  result.totalKontrakDihadapi['ekstern'] = ekstern;
-  result.totalKontrakDihadapi['joKso'] = jo;
-  result.totalKontrakDihadapi['intern'] = intern;
-
-  var data = JSON.stringify(result);
-
-  var db_mobile_total_kontrak_dihadapi = {
-    id_proyek: 'WGPUS001',
-    bulan: month,
-    tahun: year,
-    data: data
+  var result2 = {
+    "sisaKontrakDihadapi": {}
   };
 
-  db.query('INSERT INTO db_mobile_total_kontrak_dihadapi SET ? ' +
-  'ON DUPLICATE KEY ' +
-  'UPDATE ? ',
-  [db_mobile_total_kontrak_dihadapi, db_mobile_total_kontrak_dihadapi], function(err, result){
-    if(err){
-      console.log(err);
-      callback(err);
-    }else{
+  var result3 = {
+    "pesananBaruKontrakDihadapi": {}
+  };
+
+  result1.totalKontrakDihadapi['total'] = total;
+  result1.totalKontrakDihadapi['ekstern'] = ekstern;
+  result1.totalKontrakDihadapi['joKso'] = jo;
+  result1.totalKontrakDihadapi['intern'] = intern;
+
+  result2.sisaKontrakDihadapi['sisaKontrakPesananTahunLalu'] = totalLalu;
+  result2.sisaKontrakDihadapi['ekstern'] = eksternLalu;
+  result2.sisaKontrakDihadapi['joKso'] = joLalu;
+  result2.sisaKontrakDihadapi['intern'] = internLalu;
+
+  result3.pesananBaruKontrakDihadapi['kontrakPesananBaru'] = totalBaru;
+  result3.pesananBaruKontrakDihadapi['ekstern'] = eksternBaru;
+  result3.pesananBaruKontrakDihadapi['joKso'] = joBaru;
+  result3.pesananBaruKontrakDihadapi['intern'] = internBaru;
+
+  var data1 = JSON.stringify(result1);
+  var data2 = JSON.stringify(result2);
+  var data3 = JSON.stringify(result3);
+
+  var parallelFunctionList = [];
+
+  var parallelFunction = function(parallelCallback){
+    var db_mobile_total_kontrak_dihadapi = {
+      id_proyek: 'WGPUS001',
+      bulan: month,
+      tahun: year,
+      data: data1
+    };
+
+    db.query('INSERT INTO db_mobile_total_kontrak_dihadapi SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_total_kontrak_dihadapi, db_mobile_total_kontrak_dihadapi], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_sisa_kontrak_dihadapi = {
+      id_proyek: 'WGPUS001',
+      bulan: month,
+      tahun: year,
+      data: data2
+    };
+
+    db.query('INSERT INTO db_mobile_sisa_kontrak_dihadapi SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_sisa_kontrak_dihadapi, db_mobile_sisa_kontrak_dihadapi], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_pesanan_baru_kontrak_dihadapi = {
+      id_proyek: 'WGPUS001',
+      bulan: month,
+      tahun: year,
+      data: data3
+    };
+
+    db.query('INSERT INTO db_mobile_pesanan_baru_kontrak_dihadapi SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_pesanan_baru_kontrak_dihadapi, db_mobile_pesanan_baru_kontrak_dihadapi], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  Flow.parallel(parallelFunctionList, function(){
       callback();
+    },
+    function(error){
+      return db.rollback(function() {
+        callback(error);
+      });
     }
-  });
+  );
 
 }
 
