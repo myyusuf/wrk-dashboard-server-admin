@@ -188,21 +188,42 @@ var insertPiutang = function(workbook, db, year, month, callback){
     piutangList.push(obj);
   }
 
+  var parallelFunctionList = [];
+
   for(var j=0; j<piutangList.length; j++){
 
-    var laporan_keuangan = piutangList[j];
+    //---Closure
+    (function f() {
 
-    db.query('INSERT INTO laporan_keuangan SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [laporan_keuangan, laporan_keuangan], function(err, result){
-      if(err){
-        console.log(err);
-        callback(err);
-      }else{
-        callback();
+      var laporan_keuangan = piutangList[j];
+
+      var parallelFunction = function(parallelCallback){
+
+        db.query('INSERT INTO laporan_keuangan SET ? ' +
+        'ON DUPLICATE KEY ' +
+        'UPDATE ? ',
+        [laporan_keuangan, laporan_keuangan], function(err, result){
+          if(err){
+            console.log(err);
+            parallelCallback(err);
+          }else{
+            parallelCallback();
+          }
+        });
+
       }
-    });
+      parallelFunctionList.push(parallelFunction);
+    })();
+    //----------
   }
 
+  Flow.parallel(parallelFunctionList, function(){
+      callback();
+    },
+    function(error){
+      return db.rollback(function() {
+        callback(error);
+      });
+    }
+  );
 }
