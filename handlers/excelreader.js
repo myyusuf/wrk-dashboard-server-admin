@@ -138,8 +138,30 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
     }
   };
 
-  result.totalKontrakDihadapi.total = getNetProfit(worksheet, 'E', 4);
-  result.totalKontrakDihadapi.ekstern = getNetProfit(worksheet, 'E', 10);
+  // result.totalKontrakDihadapi.total = getNetProfit(worksheet, 'E', 4);
+  var ekstern = getNetProfit(worksheet, 'E', 10);
+  var jo = getNetProfit(worksheet, 'E', 15);
+  var intern = getNetProfit(worksheet, 'E', 20);
+
+  var eksternBaru = getNetProfit(worksheet, 'E', 26);
+  var joBaru = getNetProfit(worksheet, 'E', 31);
+  var internBaru = getNetProfit(worksheet, 'E', 36);
+
+  var netProfitAdder = function(a, b) {
+    return {
+      "rkap": a.rkap + b.rkap,
+      "raSdSaatIni": a.raSdSaatIni + b.raSdSaatIni,
+      "riSaatIni": a.riSaatIni + b.riSaatIni,
+      "persenRiThdRa": a.persenRiThdRa + b.persenRiThdRa,
+      "prognosa": a.prognosa + b.prognosa,
+      "persenPrognosa": 0
+    };
+  };
+
+  var totalArray = [ekstern, jo, intern, eksternBaru, joBaru, internBaru];
+  var total = totalArray.reduce(netProfitAdder);
+
+  result.totalKontrakDihadapi.total = total;
 
   var data = JSON.stringify(result);
 
