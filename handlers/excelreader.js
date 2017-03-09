@@ -101,47 +101,9 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
     return netProfit;
   }
 
-  var result = {
-    "totalKontrakDihadapi": {
-      "total": {
-        "rkap": 0,
-        "raSdSaatIni": 0,
-        "riSaatIni": 0,
-        "persenRiThdRa": 0,
-        "prognosa": 0,
-        "persenPrognosa": 0
-      },
-      "ekstern": {
-        "rkap": 0,
-        "raSdSaatIni": 0,
-        "riSaatIni": 0,
-        "persenRiThdRa": 0,
-        "prognosa": 0,
-        "persenPrognosa": 0
-      },
-      "joKso": {
-        "rkap": 0,
-        "raSdSaatIni": 0,
-        "riSaatIni": 0,
-        "persenRiThdRa": 0,
-        "prognosa": 0,
-        "persenPrognosa": 0
-      },
-      "intern": {
-        "rkap": 0,
-        "raSdSaatIni": 0,
-        "riSaatIni": 0,
-        "persenRiThdRa": 0,
-        "prognosa": 0,
-        "persenPrognosa": 0
-      }
-    }
-  };
-
-  // result.totalKontrakDihadapi.total = getNetProfit(worksheet, 'E', 4);
-  var ekstern = getNetProfit(worksheet, 'E', 10);
-  var jo = getNetProfit(worksheet, 'E', 15);
-  var intern = getNetProfit(worksheet, 'E', 20);
+  var eksternLalu = getNetProfit(worksheet, 'E', 10);
+  var joLalu = getNetProfit(worksheet, 'E', 15);
+  var internLalu = getNetProfit(worksheet, 'E', 20);
 
   var eksternBaru = getNetProfit(worksheet, 'E', 26);
   var joBaru = getNetProfit(worksheet, 'E', 31);
@@ -158,14 +120,28 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
     };
   };
 
-  var totalArray = [ekstern, jo, intern, eksternBaru, joBaru, internBaru];
+  var totalArray = [eksternLalu, joLalu, internLalu, eksternBaru, joBaru, internBaru];
   var total = totalArray.reduce(netProfitAdder);
 
-  result.totalKontrakDihadapi.total = total;
+  var eksternArray = [eksternLalu, eksternBaru];
+  var ekstern = eksternArray.reduce(netProfitAdder);
+
+  var joArray = [joLalu, joBaru];
+  var jo = joArray.reduce(netProfitAdder);
+
+  var internArray = [internLalu, internBaru];
+  var intern = internArray.reduce(netProfitAdder);
+
+  var result = {
+    "totalKontrakDihadapi": {}
+  };
+
+  result.totalKontrakDihadapi['total'] = total;
+  result.totalKontrakDihadapi['ekstern'] = ekstern;
+  result.totalKontrakDihadapi['joKso'] = jo;
+  result.totalKontrakDihadapi['intern'] = intern;
 
   var data = JSON.stringify(result);
-
-  // console.log(data);
 
   var db_mobile_total_kontrak_dihadapi = {
     id_proyek: 'WGPUS001',
