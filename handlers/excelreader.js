@@ -3,6 +3,14 @@
 var Flow = require('nimble');
 var XLSX = require('xlsx');
 
+var getNumericExcelValue = function(ws, cellName){
+  return ws[cellName] ? ws[cellName].v : 0;
+}
+
+var getStringExcelValue = function(ws, cellName){
+  return ws[cellName] ? ws[cellName].v : "";
+}
+
 exports.readExcel = function (fileName, db, user, reply){
 
     var workbook = XLSX.readFile(fileName);
@@ -22,6 +30,9 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertTotalKontrakDihadapi(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertPiutang(workbook, db, year, month, callback);
             },
             function (callback) {
 
@@ -152,5 +163,46 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
       callback();
     }
   });
+
+}
+
+var insertPiutang = function(workbook, db, year, month, callback){
+  var first_sheet_name = workbook.SheetNames[1];
+  var worksheet = workbook.Sheets[first_sheet_name];
+
+  // laporan_keuangan
+
+  var piutangList = [];
+
+  for(var i=2; i<=13; i++){
+    var valueCellName1 = "B" + i;
+    var valueCellName2 = "C" + i;
+
+    var obj = {
+      bulan: i-1,
+      tahun: year,
+      piutang_usaha: getNumericExcelValue(worksheet, valueCellName1),
+      tagihan_brutto: getNumericExcelValue(worksheet, valueCellName2)
+    };
+
+    piutangList.push(obj);
+  }
+
+  for(var j=0; j<piutangList.length; j++){
+
+    var laporan_keuangan = piutangList[j];
+
+    db.query('INSERT INTO laporan_keuangan SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [laporan_keuangan, laporan_keuangan], function(err, result){
+      if(err){
+        console.log(err);
+        callback(err);
+      }else{
+        callback();
+      }
+    });
+  }
 
 }
