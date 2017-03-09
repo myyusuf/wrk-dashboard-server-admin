@@ -69,6 +69,9 @@ exports.readExcel = function (fileName, db, user, reply){
               insertTotalPenjualan(workbook, db, year, month, callback);
             },
             function (callback) {
+              insertLabaKotor(workbook, db, year, month, callback);
+            },
+            function (callback) {
               insertPiutang(workbook, db, year, month, callback);
             },
             function (callback) {
@@ -110,6 +113,66 @@ var insertProjectProgress = function(user, db, year, month, callback){
       callback();
     }
   });
+}
+
+var insertPiutang = function(workbook, db, year, month, callback){
+  var first_sheet_name = workbook.SheetNames[1];
+  var worksheet = workbook.Sheets[first_sheet_name];
+
+  var piutangList = [];
+
+  for(var i=2; i<=13; i++){
+    var valueCellName1 = "B" + i;
+    var valueCellName2 = "C" + i;
+
+    var obj = {
+      bulan: i-1,
+      tahun: year,
+      piutang_usaha: getNumericExcelValue(worksheet, valueCellName1),
+      tagihan_brutto: getNumericExcelValue(worksheet, valueCellName2)
+    };
+
+    piutangList.push(obj);
+  }
+
+  var parallelFunctionList = [];
+
+  for(var j=0; j<piutangList.length; j++){
+
+    //---Closure
+    (function f() {
+
+      var laporan_keuangan = piutangList[j];
+
+      var parallelFunction = function(parallelCallback){
+
+        db.query('INSERT INTO laporan_keuangan SET ? ' +
+        'ON DUPLICATE KEY ' +
+        'UPDATE ? ',
+        [laporan_keuangan, laporan_keuangan], function(err, result){
+          if(err){
+            console.log(err);
+            parallelCallback(err);
+          }else{
+            parallelCallback();
+          }
+        });
+
+      }
+      parallelFunctionList.push(parallelFunction);
+    })();
+    //----------
+  }
+
+  Flow.parallel(parallelFunctionList, function(){
+      callback();
+    },
+    function(error){
+      return db.rollback(function() {
+        callback(error);
+      });
+    }
+  );
 }
 
 var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
@@ -394,56 +457,135 @@ var insertTotalPenjualan = function(workbook, db, year, month, callback){
   );
 }
 
-var insertPiutang = function(workbook, db, year, month, callback){
-  var first_sheet_name = workbook.SheetNames[1];
+var insertLabaKotor = function(workbook, db, year, month, callback){
+
+  var first_sheet_name = workbook.SheetNames[0];
   var worksheet = workbook.Sheets[first_sheet_name];
 
-  // laporan_keuangan
+  var eksternLalu = getNetProfit(worksheet, 'K', 10);
+  var joLalu = getNetProfit(worksheet, 'K', 15);
+  var internLalu = getNetProfit(worksheet, 'K', 20);
 
-  var piutangList = [];
+  var eksternBaru = getNetProfit(worksheet, 'K', 26);
+  var joBaru = getNetProfit(worksheet, 'K', 31);
+  var internBaru = getNetProfit(worksheet, 'K', 36);
 
-  for(var i=2; i<=13; i++){
-    var valueCellName1 = "B" + i;
-    var valueCellName2 = "C" + i;
+  var totalLaluArray = [eksternLalu, joLalu, internLalu];
+  var totalLalu= totalLaluArray.reduce(netProfitAdder);
 
-    var obj = {
-      bulan: i-1,
-      tahun: year,
-      piutang_usaha: getNumericExcelValue(worksheet, valueCellName1),
-      tagihan_brutto: getNumericExcelValue(worksheet, valueCellName2)
-    };
+  var totalBaruArray = [eksternBaru, joBaru, internBaru];
+  var totalBaru = totalBaruArray.reduce(netProfitAdder);
 
-    piutangList.push(obj);
-  }
+  var totalArray = [totalLalu, totalBaru];
+  var total = totalArray.reduce(netProfitAdder);
+
+  var eksternArray = [eksternLalu, eksternBaru];
+  var ekstern = eksternArray.reduce(netProfitAdder);
+
+  var joArray = [joLalu, joBaru];
+  var jo = joArray.reduce(netProfitAdder);
+
+  var internArray = [internLalu, internBaru];
+  var intern = internArray.reduce(netProfitAdder);
+
+  var result1 = {
+    "totalLabaKotor": {}
+  };
+
+  var result2 = {
+    "labaKotorLama": {}
+  };
+
+  var result3 = {
+    "labaKotorBaru": {}
+  };
+
+  result1.totalLabaKotor['total'] = total;
+  result1.totalLabaKotor['ekstern'] = ekstern;
+  result1.totalLabaKotor['joKso'] = jo;
+  result1.totalLabaKotor['intern'] = intern;
+
+  result2.labaKotorLama['lama'] = totalLalu;
+  result2.labaKotorLama['eksternIntern'] = eksternLalu;
+  result2.labaKotorLama['joKso'] = joLalu;
+  result2.labaKotorLama['intern'] = internLalu; //???
+
+  result3.labaKotorBaru['baru'] = totalBaru;
+  result3.labaKotorBaru['eksternIntern'] = eksternBaru;
+  result3.labaKotorBaru['joKso'] = joBaru;
+  result3.labaKotorBaru['intern'] = internBaru;
+
+  var data1 = JSON.stringify(result1);
+  var data2 = JSON.stringify(result2);
+  var data3 = JSON.stringify(result3);
 
   var parallelFunctionList = [];
 
-  for(var j=0; j<piutangList.length; j++){
+  var parallelFunction = function(parallelCallback){
+    var db_mobile_total_laba_kotor = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data1
+    };
 
-    //---Closure
-    (function f() {
-
-      var laporan_keuangan = piutangList[j];
-
-      var parallelFunction = function(parallelCallback){
-
-        db.query('INSERT INTO laporan_keuangan SET ? ' +
-        'ON DUPLICATE KEY ' +
-        'UPDATE ? ',
-        [laporan_keuangan, laporan_keuangan], function(err, result){
-          if(err){
-            console.log(err);
-            parallelCallback(err);
-          }else{
-            parallelCallback();
-          }
-        });
-
+    db.query('INSERT INTO db_mobile_total_laba_kotor SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_total_laba_kotor, db_mobile_total_laba_kotor], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
       }
-      parallelFunctionList.push(parallelFunction);
-    })();
-    //----------
+    });
   }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_laba_kotor_lama = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data2
+    };
+
+    db.query('INSERT INTO db_mobile_laba_kotor_lama SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_laba_kotor_lama, db_mobile_laba_kotor_lama], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_laba_kotor_baru = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data3
+    };
+
+    db.query('INSERT INTO db_mobile_laba_kotor_baru SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_laba_kotor_baru, db_mobile_laba_kotor_baru], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
 
   Flow.parallel(parallelFunctionList, function(){
       callback();
