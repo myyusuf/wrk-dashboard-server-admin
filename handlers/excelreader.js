@@ -44,6 +44,8 @@ var netProfitAdder = function(a, b) {
 };
 
 var penjualan = {};
+var pphFinal = {};
+var labaKotor = {};
 
 const idProyekHO = 'WGPUS001';
 
@@ -77,6 +79,9 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertPphFinal(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertLkPphFinal(workbook, db, year, month, callback);
             },
             function (callback) {
               insertPiutang(workbook, db, year, month, callback);
@@ -532,6 +537,12 @@ var insertLabaKotor = function(workbook, db, year, month, callback){
   var data2 = JSON.stringify(result2);
   var data3 = JSON.stringify(result3);
 
+  labaKotor = {
+    totalLabaKotor: result1.totalLabaKotor,
+    labaKotorLama: result2.labaKotorLama,
+    labaKotorBaru: result3.labaKotorBaru
+  }
+
   var parallelFunctionList = [];
 
   var parallelFunction = function(parallelCallback){
@@ -618,11 +629,11 @@ var insertPphFinal = function(workbook, db, year, month, callback){
 
   var getPphFinal = function(obj){
     return {
-      "rkap": obj.rkap * 0.3,
-      "raSdSaatIni": obj.raSdSaatIni * 0.3,
-      "riSaatIni": obj.riSaatIni * 0.3,
-      "persenRiThdRa": obj.persenRiThdRa * 0.3,
-      "prognosa": obj.prognosa * 0.3,
+      "rkap": obj.rkap * 0.03,
+      "raSdSaatIni": obj.raSdSaatIni * 0.03,
+      "riSaatIni": obj.riSaatIni * 0.03,
+      "persenRiThdRa": obj.persenRiThdRa * 0.03,
+      "prognosa": obj.prognosa * 0.03,
       "persenPrognosa": 0
     };
   }
@@ -668,21 +679,27 @@ var insertPphFinal = function(workbook, db, year, month, callback){
   result1.totalPphFinal['total'] = total;
   result1.totalPphFinal['ekstern'] = ekstern;
   result1.totalPphFinal['joKso'] = jo;
-  // result1.totalPphFinal['intern'] = intern;
+  result1.totalPphFinal['intern'] = intern;
 
   result2.pphFinalLama['lama'] = totalLalu;
   result2.pphFinalLama['eksternIntern'] = eksternLalu;
   result2.pphFinalLama['joKso'] = joLalu;
-  // result2.pphFinalLama['intern'] = internLalu;
+  result2.pphFinalLama['intern'] = internLalu;
 
   result3.pphFinalBaru['baru'] = totalBaru;
   result3.pphFinalBaru['eksternIntern'] = eksternBaru;
   result3.pphFinalBaru['joKso'] = joBaru;
-  // result3.pphFinalBaru['intern'] = internBaru;
+  result3.pphFinalBaru['intern'] = internBaru;
 
   var data1 = JSON.stringify(result1);
   var data2 = JSON.stringify(result2);
   var data3 = JSON.stringify(result3);
+
+  pphFinal = {
+    totalPphFinal: result1.totalPphFinal,
+    pphFinalLama: result2.pphFinalLama,
+    pphFinalBaru: result3.pphFinalBaru
+  }
 
   var parallelFunctionList = [];
 
@@ -742,6 +759,158 @@ var insertPphFinal = function(workbook, db, year, month, callback){
     'ON DUPLICATE KEY ' +
     'UPDATE ? ',
     [db_mobile_pph_final_baru, db_mobile_pph_final_baru], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  Flow.parallel(parallelFunctionList, function(){
+      callback();
+    },
+    function(error){
+      return db.rollback(function() {
+        callback(error);
+      });
+    }
+  );
+}
+
+var insertLkPphFinal = function(workbook, db, year, month, callback){
+
+  var first_sheet_name = workbook.SheetNames[0];
+  var worksheet = workbook.Sheets[first_sheet_name];
+
+  var netProfitSubstract = function(a, b) {
+    return {
+      "rkap": a.rkap - b.rkap,
+      "raSdSaatIni": a.raSdSaatIni - b.raSdSaatIni,
+      "riSaatIni": a.riSaatIni - b.riSaatIni,
+      "persenRiThdRa": a.persenRiThdRa - b.persenRiThdRa,
+      "prognosa": a.prognosa - b.prognosa,
+      "persenPrognosa": 0
+    };
+  };
+
+  var eksternLalu = [penjualan.penjualanLama.ekstern, pphFinal.pphFinalLama.eksternIntern].reduce(netProfitSubstract);
+  var joLalu = [penjualan.penjualanLama.joKso, pphFinal.pphFinalLama.joKso].reduce(netProfitSubstract);
+  var internLalu = [penjualan.penjualanLama.intern, pphFinal.pphFinalLama.joKso.intern].reduce(netProfitSubstract);
+
+  var eksternBaru = [penjualan.penjualanBaru.ekstern, pphFinal.pphFinalBaru.eksternIntern].reduce(netProfitSubstract);
+  var joBaru = [penjualan.penjualanBaru.joKso, pphFinal.pphFinalBaru.joKso].reduce(netProfitSubstract);
+  var internBaru = [penjualan.penjualanBaru.intern, pphFinal.pphFinalBaru.intern].reduce(netProfitSubstract);
+
+  var totalLaluArray = [eksternLalu, joLalu, internLalu];
+  var totalLalu = totalLaluArray.reduce(netProfitAdder);
+
+  var totalBaruArray = [eksternBaru, joBaru, internBaru];
+  var totalBaru = totalBaruArray.reduce(netProfitAdder);
+
+  var totalArray = [totalLalu, totalBaru];
+  var total = totalArray.reduce(netProfitAdder);
+
+  var eksternArray = [eksternLalu, eksternBaru];
+  var ekstern = eksternArray.reduce(netProfitAdder);
+
+  var joArray = [joLalu, joBaru];
+  var jo = joArray.reduce(netProfitAdder);
+
+  var internArray = [internLalu, internBaru];
+  var intern = internArray.reduce(netProfitAdder);
+
+  var result1 = {
+    "totalLabaKotorStlhPphFinal": {}
+  };
+
+  var result2 = {
+    "labaKotorStlhPphFinalLama": {}
+  };
+
+  var result3 = {
+    "labaKotorStlhPphFinalBaru": {}
+  };
+
+  result1.totalLabaKotorStlhPphFinal['total'] = total;
+  result1.totalLabaKotorStlhPphFinal['nonJoIntegratedEkstern'] = ekstern;
+  result1.totalLabaKotorStlhPphFinal['joKso'] = jo;
+  result1.totalLabaKotorStlhPphFinal['intern'] = intern;
+
+  result2.labaKotorStlhPphFinalLama['lama'] = totalLalu;
+  result2.labaKotorStlhPphFinalLama['eksternIntern'] = eksternLalu;
+  result2.labaKotorStlhPphFinalLama['joKso'] = joLalu;
+  result2.labaKotorStlhPphFinalLama['intern'] = internLalu;
+
+  result3.labaKotorStlhPphFinalBaru['baru'] = totalBaru;
+  result3.labaKotorStlhPphFinalBaru['eksternIntern'] = eksternBaru;
+  result3.labaKotorStlhPphFinalBaru['joKso'] = joBaru;
+  result3.labaKotorStlhPphFinalBaru['intern'] = internBaru;
+
+  var data1 = JSON.stringify(result1);
+  var data2 = JSON.stringify(result2);
+  var data3 = JSON.stringify(result3);
+
+  var parallelFunctionList = [];
+
+  var parallelFunction = function(parallelCallback){
+    var db_mobile_total_laba_kotor_stlh_pph_final = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data1
+    };
+
+    db.query('INSERT INTO db_mobile_total_laba_kotor_stlh_pph_final SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_total_laba_kotor_stlh_pph_final, db_mobile_total_laba_kotor_stlh_pph_final], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_laba_kotor_stlh_pph_final_lama = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data2
+    };
+
+    db.query('INSERT INTO db_mobile_laba_kotor_stlh_pph_final_lama SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_laba_kotor_stlh_pph_final_lama, db_mobile_laba_kotor_stlh_pph_final_lama], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_laba_kotor_stlh_pph_final_baru = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data3
+    };
+
+    db.query('INSERT INTO db_mobile_laba_kotor_stlh_pph_final_baru SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_laba_kotor_stlh_pph_final_baru, db_mobile_laba_kotor_stlh_pph_final_baru], function(err, result){
       if(err){
         console.log(err);
         parallelCallback(err);
