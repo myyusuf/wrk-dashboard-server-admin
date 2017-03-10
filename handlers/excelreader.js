@@ -43,6 +43,8 @@ var netProfitAdder = function(a, b) {
   };
 };
 
+var penjualan = {};
+
 const idProyekHO = 'WGPUS001';
 
 exports.readExcel = function (fileName, db, user, reply){
@@ -54,6 +56,8 @@ exports.readExcel = function (fileName, db, user, reply){
 
     const month = worksheet['B2'].v;
     const year = worksheet['C2'].v;
+
+    penjualan = {};
 
     db.beginTransaction(function(err) {
       if (err) { throw err; };
@@ -70,6 +74,9 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertLabaKotor(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertPphFinal(workbook, db, year, month, callback);
             },
             function (callback) {
               insertPiutang(workbook, db, year, month, callback);
@@ -378,6 +385,12 @@ var insertTotalPenjualan = function(workbook, db, year, month, callback){
   var data2 = JSON.stringify(result2);
   var data3 = JSON.stringify(result3);
 
+  penjualan = {
+    totalPenjualan: result1.totalPenjualan,
+    penjualanLama: result2.penjualanLama,
+    penjualanBaru: result3.penjualanBaru
+  }
+
   var parallelFunctionList = [];
 
   var parallelFunction = function(parallelCallback){
@@ -577,6 +590,158 @@ var insertLabaKotor = function(workbook, db, year, month, callback){
     'ON DUPLICATE KEY ' +
     'UPDATE ? ',
     [db_mobile_laba_kotor_baru, db_mobile_laba_kotor_baru], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  Flow.parallel(parallelFunctionList, function(){
+      callback();
+    },
+    function(error){
+      return db.rollback(function() {
+        callback(error);
+      });
+    }
+  );
+}
+
+var insertPphFinal = function(workbook, db, year, month, callback){
+
+  var first_sheet_name = workbook.SheetNames[0];
+  var worksheet = workbook.Sheets[first_sheet_name];
+
+  var getPphFinal = function(obj){
+    return {
+      "rkap": obj.rkap * 0.3,
+      "raSdSaatIni": obj.raSdSaatIni * 0.3,
+      "riSaatIni": obj.riSaatIni * 0.3,
+      "persenRiThdRa": obj.persenRiThdRa * 0.3,
+      "prognosa": obj.prognosa * 0.3,
+      "persenPrognosa": 0
+    };
+  }
+
+  var eksternLalu = getPphFinal(penjualan.penjualanLama.ekstern);
+  var joLalu = getPphFinal(penjualan.penjualanLama.joKso);
+  var internLalu = getPphFinal(penjualan.penjualanLama.intern);
+
+  var eksternBaru = getPphFinal(penjualan.penjualanBaru.ekstern);
+  var joBaru = getPphFinal(penjualan.penjualanBaru.joKso);
+  var internBaru = getPphFinal(penjualan.penjualanBaru.intern);
+
+  var totalLaluArray = [eksternLalu, joLalu, internLalu];
+  var totalLalu = totalLaluArray.reduce(netProfitAdder);
+
+  var totalBaruArray = [eksternBaru, joBaru, internBaru];
+  var totalBaru = totalBaruArray.reduce(netProfitAdder);
+
+  var totalArray = [totalLalu, totalBaru];
+  var total = totalArray.reduce(netProfitAdder);
+
+  var eksternArray = [eksternLalu, eksternBaru];
+  var ekstern = eksternArray.reduce(netProfitAdder);
+
+  var joArray = [joLalu, joBaru];
+  var jo = joArray.reduce(netProfitAdder);
+
+  var internArray = [internLalu, internBaru];
+  var intern = internArray.reduce(netProfitAdder);
+
+  var result1 = {
+    "totalPphFinal": {}
+  };
+
+  var result2 = {
+    "pphFinalLama": {}
+  };
+
+  var result3 = {
+    "pphFinalBaru": {}
+  };
+
+  result1.totalPphFinal['total'] = total;
+  result1.totalPphFinal['ekstern'] = ekstern;
+  result1.totalPphFinal['joKso'] = jo;
+  // result1.totalPphFinal['intern'] = intern;
+
+  result2.pphFinalLama['lama'] = totalLalu;
+  result2.pphFinalLama['eksternIntern'] = eksternLalu;
+  result2.pphFinalLama['joKso'] = joLalu;
+  // result2.pphFinalLama['intern'] = internLalu;
+
+  result3.pphFinalBaru['baru'] = totalBaru;
+  result3.pphFinalBaru['eksternIntern'] = eksternBaru;
+  result3.pphFinalBaru['joKso'] = joBaru;
+  // result3.pphFinalBaru['intern'] = internBaru;
+
+  var data1 = JSON.stringify(result1);
+  var data2 = JSON.stringify(result2);
+  var data3 = JSON.stringify(result3);
+
+  var parallelFunctionList = [];
+
+  var parallelFunction = function(parallelCallback){
+    var db_mobile_total_pph_final = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data1
+    };
+
+    db.query('INSERT INTO db_mobile_total_pph_final SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_total_pph_final, db_mobile_total_pph_final], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_pph_final_lama = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data2
+    };
+
+    db.query('INSERT INTO db_mobile_pph_final_lama SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_pph_final_lama, db_mobile_pph_final_lama], function(err, result){
+      if(err){
+        console.log(err);
+        parallelCallback(err);
+      }else{
+        parallelCallback();
+      }
+    });
+  }
+  parallelFunctionList.push(parallelFunction);
+
+  parallelFunction = function(parallelCallback){
+    var db_mobile_pph_final_baru = {
+      id_proyek: idProyekHO,
+      bulan: month,
+      tahun: year,
+      data: data3
+    };
+
+    db.query('INSERT INTO db_mobile_pph_final_baru SET ? ' +
+    'ON DUPLICATE KEY ' +
+    'UPDATE ? ',
+    [db_mobile_pph_final_baru, db_mobile_pph_final_baru], function(err, result){
       if(err){
         console.log(err);
         parallelCallback(err);
