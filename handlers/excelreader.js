@@ -66,9 +66,6 @@ exports.readExcel = function (fileName, db, user, reply){
 
         Flow.series([
             function (callback) {
-              insertProjectProgress(user, db, year, month, callback);
-            },
-            function (callback) {
               insertTotalKontrakDihadapi(workbook, db, year, month, callback);
             },
             function (callback) {
@@ -88,6 +85,9 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertPiutang(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertProjectProgress(user, db, year, month, callback);
             },
             function (callback) {
 
