@@ -3,6 +3,8 @@
 var Flow = require('nimble');
 var XLSX = require('xlsx');
 
+var NetProfitResult = require('./netprofit_result');
+
 var getNumericExcelValue = function(ws, cellName){
   return ws[cellName] ? ws[cellName].v : 0;
 }
@@ -43,11 +45,9 @@ var netProfitAdder = function(a, b) {
   };
 };
 
-var penjualan = {};
-var pphFinal = {};
-var labaKotor = {};
-
 const idProyekHO = 'WGPUS001';
+
+var result = {};
 
 exports.readExcel = function (fileName, db, user, reply){
 
@@ -59,7 +59,7 @@ exports.readExcel = function (fileName, db, user, reply){
     const month = worksheet['B2'].v;
     const year = worksheet['C2'].v;
 
-    penjualan = {};
+    result = NetProfitResult.netProfitResult;
 
     db.beginTransaction(function(err) {
       if (err) { throw err; };
@@ -82,6 +82,9 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertLkPphFinal(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertNetProfit(db, year, month, callback);
             },
             function (callback) {
               insertPiutang(workbook, db, year, month, callback);
@@ -120,6 +123,28 @@ var insertProjectProgress = function(user, db, year, month, callback){
 
   db.query('INSERT INTO project_progress SET ?', projectProgress, function(err, result){
     if(err){
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+}
+
+var insertNetProfit = function(db, year, month, callback){
+
+  var tb_net_profit = {
+    id_proyek: idProyekHO,
+    bulan: month,
+    tahun: year,
+    data: JSON.stringify(result)
+  };
+
+  db.query('INSERT INTO tb_net_profit SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [tb_net_profit, tb_net_profit], function(err, result){
+    if(err){
+      console.log(err);
       callback(err);
     }else{
       callback();
@@ -218,114 +243,22 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
   var internArray = [internLalu, internBaru];
   var intern = internArray.reduce(netProfitAdder);
 
-  var result1 = {
-    "totalKontrakDihadapi": {}
-  };
+  result.totalKontrakDihadapi['total'] = total;
+  result.totalKontrakDihadapi['ekstern'] = ekstern;
+  result.totalKontrakDihadapi['joKso'] = jo;
+  result.totalKontrakDihadapi['intern'] = intern;
 
-  var result2 = {
-    "sisaKontrakDihadapi": {}
-  };
+  result.sisaKontrakDihadapi['sisaKontrakPesananTahunLalu'] = totalLalu;
+  result.sisaKontrakDihadapi['ekstern'] = eksternLalu;
+  result.sisaKontrakDihadapi['joKso'] = joLalu;
+  result.sisaKontrakDihadapi['intern'] = internLalu;
 
-  var result3 = {
-    "pesananBaruKontrakDihadapi": {}
-  };
+  result.pesananBaruKontrakDihadapi['kontrakPesananBaru'] = totalBaru;
+  result.pesananBaruKontrakDihadapi['ekstern'] = eksternBaru;
+  result.pesananBaruKontrakDihadapi['joKso'] = joBaru;
+  result.pesananBaruKontrakDihadapi['intern'] = internBaru;
 
-  result1.totalKontrakDihadapi['total'] = total;
-  result1.totalKontrakDihadapi['ekstern'] = ekstern;
-  result1.totalKontrakDihadapi['joKso'] = jo;
-  result1.totalKontrakDihadapi['intern'] = intern;
-
-  result2.sisaKontrakDihadapi['sisaKontrakPesananTahunLalu'] = totalLalu;
-  result2.sisaKontrakDihadapi['ekstern'] = eksternLalu;
-  result2.sisaKontrakDihadapi['joKso'] = joLalu;
-  result2.sisaKontrakDihadapi['intern'] = internLalu;
-
-  result3.pesananBaruKontrakDihadapi['kontrakPesananBaru'] = totalBaru;
-  result3.pesananBaruKontrakDihadapi['ekstern'] = eksternBaru;
-  result3.pesananBaruKontrakDihadapi['joKso'] = joBaru;
-  result3.pesananBaruKontrakDihadapi['intern'] = internBaru;
-
-  var data1 = JSON.stringify(result1);
-  var data2 = JSON.stringify(result2);
-  var data3 = JSON.stringify(result3);
-
-  var parallelFunctionList = [];
-
-  var parallelFunction = function(parallelCallback){
-    var db_mobile_total_kontrak_dihadapi = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data1
-    };
-
-    db.query('INSERT INTO db_mobile_total_kontrak_dihadapi SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_total_kontrak_dihadapi, db_mobile_total_kontrak_dihadapi], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_sisa_kontrak_dihadapi = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data2
-    };
-
-    db.query('INSERT INTO db_mobile_sisa_kontrak_dihadapi SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_sisa_kontrak_dihadapi, db_mobile_sisa_kontrak_dihadapi], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_pesanan_baru_kontrak_dihadapi = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data3
-    };
-
-    db.query('INSERT INTO db_mobile_pesanan_baru_kontrak_dihadapi SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_pesanan_baru_kontrak_dihadapi, db_mobile_pesanan_baru_kontrak_dihadapi], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  Flow.parallel(parallelFunctionList, function(){
-      callback();
-    },
-    function(error){
-      return db.rollback(function() {
-        callback(error);
-      });
-    }
-  );
+  callback();
 }
 
 var insertTotalPenjualan = function(workbook, db, year, month, callback){
@@ -359,120 +292,22 @@ var insertTotalPenjualan = function(workbook, db, year, month, callback){
   var internArray = [internLalu, internBaru];
   var intern = internArray.reduce(netProfitAdder);
 
-  var result1 = {
-    "totalPenjualan": {}
-  };
+  result.totalPenjualan['total'] = total;
+  result.totalPenjualan['ekstern'] = ekstern;
+  result.totalPenjualan['joKso'] = jo;
+  result.totalPenjualan['intern'] = intern;
 
-  var result2 = {
-    "penjualanLama": {}
-  };
+  result.penjualanLama['lama'] = totalLalu;
+  result.penjualanLama['ekstern'] = eksternLalu;
+  result.penjualanLama['joKso'] = joLalu;
+  result.penjualanLama['intern'] = internLalu;
 
-  var result3 = {
-    "penjualanBaru": {}
-  };
+  result.penjualanBaru['baru'] = totalBaru;
+  result.penjualanBaru['ekstern'] = eksternBaru;
+  result.penjualanBaru['joKso'] = joBaru;
+  result.penjualanBaru['intern'] = internBaru;
 
-  result1.totalPenjualan['total'] = total;
-  result1.totalPenjualan['ekstern'] = ekstern;
-  result1.totalPenjualan['joKso'] = jo;
-  result1.totalPenjualan['intern'] = intern;
-
-  result2.penjualanLama['lama'] = totalLalu;
-  result2.penjualanLama['ekstern'] = eksternLalu;
-  result2.penjualanLama['joKso'] = joLalu;
-  result2.penjualanLama['intern'] = internLalu;
-
-  result3.penjualanBaru['baru'] = totalBaru;
-  result3.penjualanBaru['ekstern'] = eksternBaru;
-  result3.penjualanBaru['joKso'] = joBaru;
-  result3.penjualanBaru['intern'] = internBaru;
-
-  var data1 = JSON.stringify(result1);
-  var data2 = JSON.stringify(result2);
-  var data3 = JSON.stringify(result3);
-
-  penjualan = {
-    totalPenjualan: result1.totalPenjualan,
-    penjualanLama: result2.penjualanLama,
-    penjualanBaru: result3.penjualanBaru
-  }
-
-  var parallelFunctionList = [];
-
-  var parallelFunction = function(parallelCallback){
-    var db_mobile_total_penjualan = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data1
-    };
-
-    db.query('INSERT INTO db_mobile_total_penjualan SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_total_penjualan, db_mobile_total_penjualan], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_penjualan_lama = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data2
-    };
-
-    db.query('INSERT INTO db_mobile_penjualan_lama SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_penjualan_lama, db_mobile_penjualan_lama], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_penjualan_baru = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data3
-    };
-
-    db.query('INSERT INTO db_mobile_penjualan_baru SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_penjualan_baru, db_mobile_penjualan_baru], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  Flow.parallel(parallelFunctionList, function(){
-      callback();
-    },
-    function(error){
-      return db.rollback(function() {
-        callback(error);
-      });
-    }
-  );
+  callback();
 }
 
 var insertLabaKotor = function(workbook, db, year, month, callback){
@@ -506,120 +341,22 @@ var insertLabaKotor = function(workbook, db, year, month, callback){
   var internArray = [internLalu, internBaru];
   var intern = internArray.reduce(netProfitAdder);
 
-  var result1 = {
-    "totalLabaKotor": {}
-  };
+  result.totalLabaKotor['total'] = total;
+  result.totalLabaKotor['ekstern'] = ekstern;
+  result.totalLabaKotor['joKso'] = jo;
+  result.totalLabaKotor['intern'] = intern;
 
-  var result2 = {
-    "labaKotorLama": {}
-  };
+  result.labaKotorLama['lama'] = totalLalu;
+  result.labaKotorLama['eksternIntern'] = eksternLalu;
+  result.labaKotorLama['joKso'] = joLalu;
+  result.labaKotorLama['intern'] = internLalu; //???
 
-  var result3 = {
-    "labaKotorBaru": {}
-  };
+  result.labaKotorBaru['baru'] = totalBaru;
+  result.labaKotorBaru['eksternIntern'] = eksternBaru;
+  result.labaKotorBaru['joKso'] = joBaru;
+  result.labaKotorBaru['intern'] = internBaru;
 
-  result1.totalLabaKotor['total'] = total;
-  result1.totalLabaKotor['ekstern'] = ekstern;
-  result1.totalLabaKotor['joKso'] = jo;
-  result1.totalLabaKotor['intern'] = intern;
-
-  result2.labaKotorLama['lama'] = totalLalu;
-  result2.labaKotorLama['eksternIntern'] = eksternLalu;
-  result2.labaKotorLama['joKso'] = joLalu;
-  result2.labaKotorLama['intern'] = internLalu; //???
-
-  result3.labaKotorBaru['baru'] = totalBaru;
-  result3.labaKotorBaru['eksternIntern'] = eksternBaru;
-  result3.labaKotorBaru['joKso'] = joBaru;
-  result3.labaKotorBaru['intern'] = internBaru;
-
-  var data1 = JSON.stringify(result1);
-  var data2 = JSON.stringify(result2);
-  var data3 = JSON.stringify(result3);
-
-  labaKotor = {
-    totalLabaKotor: result1.totalLabaKotor,
-    labaKotorLama: result2.labaKotorLama,
-    labaKotorBaru: result3.labaKotorBaru
-  }
-
-  var parallelFunctionList = [];
-
-  var parallelFunction = function(parallelCallback){
-    var db_mobile_total_laba_kotor = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data1
-    };
-
-    db.query('INSERT INTO db_mobile_total_laba_kotor SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_total_laba_kotor, db_mobile_total_laba_kotor], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_laba_kotor_lama = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data2
-    };
-
-    db.query('INSERT INTO db_mobile_laba_kotor_lama SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_laba_kotor_lama, db_mobile_laba_kotor_lama], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_laba_kotor_baru = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data3
-    };
-
-    db.query('INSERT INTO db_mobile_laba_kotor_baru SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_laba_kotor_baru, db_mobile_laba_kotor_baru], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  Flow.parallel(parallelFunctionList, function(){
-      callback();
-    },
-    function(error){
-      return db.rollback(function() {
-        callback(error);
-      });
-    }
-  );
+  callback();
 }
 
 var insertPphFinal = function(workbook, db, year, month, callback){
@@ -638,13 +375,13 @@ var insertPphFinal = function(workbook, db, year, month, callback){
     };
   }
 
-  var eksternLalu = getPphFinal(penjualan.penjualanLama.ekstern);
-  var joLalu = getPphFinal(penjualan.penjualanLama.joKso);
-  var internLalu = getPphFinal(penjualan.penjualanLama.intern);
+  var eksternLalu = getPphFinal(result.penjualanLama.ekstern);
+  var joLalu = getPphFinal(result.penjualanLama.joKso);
+  var internLalu = getPphFinal(result.penjualanLama.intern);
 
-  var eksternBaru = getPphFinal(penjualan.penjualanBaru.ekstern);
-  var joBaru = getPphFinal(penjualan.penjualanBaru.joKso);
-  var internBaru = getPphFinal(penjualan.penjualanBaru.intern);
+  var eksternBaru = getPphFinal(result.penjualanBaru.ekstern);
+  var joBaru = getPphFinal(result.penjualanBaru.joKso);
+  var internBaru = getPphFinal(result.penjualanBaru.intern);
 
   var totalLaluArray = [eksternLalu, joLalu, internLalu];
   var totalLalu = totalLaluArray.reduce(netProfitAdder);
@@ -664,120 +401,22 @@ var insertPphFinal = function(workbook, db, year, month, callback){
   var internArray = [internLalu, internBaru];
   var intern = internArray.reduce(netProfitAdder);
 
-  var result1 = {
-    "totalPphFinal": {}
-  };
+  result.totalPphFinal['total'] = total;
+  result.totalPphFinal['ekstern'] = ekstern;
+  result.totalPphFinal['joKso'] = jo;
+  result.totalPphFinal['intern'] = intern;
 
-  var result2 = {
-    "pphFinalLama": {}
-  };
+  result.pphFinalLama['lama'] = totalLalu;
+  result.pphFinalLama['eksternIntern'] = eksternLalu;
+  result.pphFinalLama['joKso'] = joLalu;
+  result.pphFinalLama['intern'] = internLalu;
 
-  var result3 = {
-    "pphFinalBaru": {}
-  };
+  result.pphFinalBaru['baru'] = totalBaru;
+  result.pphFinalBaru['eksternIntern'] = eksternBaru;
+  result.pphFinalBaru['joKso'] = joBaru;
+  result.pphFinalBaru['intern'] = internBaru;
 
-  result1.totalPphFinal['total'] = total;
-  result1.totalPphFinal['ekstern'] = ekstern;
-  result1.totalPphFinal['joKso'] = jo;
-  result1.totalPphFinal['intern'] = intern;
-
-  result2.pphFinalLama['lama'] = totalLalu;
-  result2.pphFinalLama['eksternIntern'] = eksternLalu;
-  result2.pphFinalLama['joKso'] = joLalu;
-  result2.pphFinalLama['intern'] = internLalu;
-
-  result3.pphFinalBaru['baru'] = totalBaru;
-  result3.pphFinalBaru['eksternIntern'] = eksternBaru;
-  result3.pphFinalBaru['joKso'] = joBaru;
-  result3.pphFinalBaru['intern'] = internBaru;
-
-  var data1 = JSON.stringify(result1);
-  var data2 = JSON.stringify(result2);
-  var data3 = JSON.stringify(result3);
-
-  pphFinal = {
-    totalPphFinal: result1.totalPphFinal,
-    pphFinalLama: result2.pphFinalLama,
-    pphFinalBaru: result3.pphFinalBaru
-  }
-
-  var parallelFunctionList = [];
-
-  var parallelFunction = function(parallelCallback){
-    var db_mobile_total_pph_final = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data1
-    };
-
-    db.query('INSERT INTO db_mobile_total_pph_final SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_total_pph_final, db_mobile_total_pph_final], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_pph_final_lama = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data2
-    };
-
-    db.query('INSERT INTO db_mobile_pph_final_lama SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_pph_final_lama, db_mobile_pph_final_lama], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_pph_final_baru = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data3
-    };
-
-    db.query('INSERT INTO db_mobile_pph_final_baru SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_pph_final_baru, db_mobile_pph_final_baru], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  Flow.parallel(parallelFunctionList, function(){
-      callback();
-    },
-    function(error){
-      return db.rollback(function() {
-        callback(error);
-      });
-    }
-  );
+  callback();
 }
 
 var insertLkPphFinal = function(workbook, db, year, month, callback){
@@ -796,13 +435,13 @@ var insertLkPphFinal = function(workbook, db, year, month, callback){
     };
   };
 
-  var eksternLalu = [penjualan.penjualanLama.ekstern, pphFinal.pphFinalLama.eksternIntern].reduce(netProfitSubstract);
-  var joLalu = [penjualan.penjualanLama.joKso, pphFinal.pphFinalLama.joKso].reduce(netProfitSubstract);
-  var internLalu = [penjualan.penjualanLama.intern, pphFinal.pphFinalLama.joKso.intern].reduce(netProfitSubstract);
+  var eksternLalu = [result.penjualanLama.ekstern, result.pphFinalLama.eksternIntern].reduce(netProfitSubstract);
+  var joLalu = [result.penjualanLama.joKso, result.pphFinalLama.joKso].reduce(netProfitSubstract);
+  var internLalu = [result.penjualanLama.intern, result.pphFinalLama.intern].reduce(netProfitSubstract);
 
-  var eksternBaru = [penjualan.penjualanBaru.ekstern, pphFinal.pphFinalBaru.eksternIntern].reduce(netProfitSubstract);
-  var joBaru = [penjualan.penjualanBaru.joKso, pphFinal.pphFinalBaru.joKso].reduce(netProfitSubstract);
-  var internBaru = [penjualan.penjualanBaru.intern, pphFinal.pphFinalBaru.intern].reduce(netProfitSubstract);
+  var eksternBaru = [result.penjualanBaru.ekstern, result.pphFinalBaru.eksternIntern].reduce(netProfitSubstract);
+  var joBaru = [result.penjualanBaru.joKso, result.pphFinalBaru.joKso].reduce(netProfitSubstract);
+  var internBaru = [result.penjualanBaru.intern, result.pphFinalBaru.intern].reduce(netProfitSubstract);
 
   var totalLaluArray = [eksternLalu, joLalu, internLalu];
   var totalLalu = totalLaluArray.reduce(netProfitAdder);
@@ -822,112 +461,20 @@ var insertLkPphFinal = function(workbook, db, year, month, callback){
   var internArray = [internLalu, internBaru];
   var intern = internArray.reduce(netProfitAdder);
 
-  var result1 = {
-    "totalLabaKotorStlhPphFinal": {}
-  };
+  result.totalLabaKotorStlhPphFinal['total'] = total;
+  result.totalLabaKotorStlhPphFinal['nonJoIntegratedEkstern'] = ekstern;
+  result.totalLabaKotorStlhPphFinal['joKso'] = jo;
+  result.totalLabaKotorStlhPphFinal['intern'] = intern;
 
-  var result2 = {
-    "labaKotorStlhPphFinalLama": {}
-  };
+  result.labaKotorStlhPphFinalLama['lama'] = totalLalu;
+  result.labaKotorStlhPphFinalLama['eksternIntern'] = eksternLalu;
+  result.labaKotorStlhPphFinalLama['joKso'] = joLalu;
+  result.labaKotorStlhPphFinalLama['intern'] = internLalu;
 
-  var result3 = {
-    "labaKotorStlhPphFinalBaru": {}
-  };
+  result.labaKotorStlhPphFinalBaru['baru'] = totalBaru;
+  result.labaKotorStlhPphFinalBaru['eksternIntern'] = eksternBaru;
+  result.labaKotorStlhPphFinalBaru['joKso'] = joBaru;
+  result.labaKotorStlhPphFinalBaru['intern'] = internBaru;
 
-  result1.totalLabaKotorStlhPphFinal['total'] = total;
-  result1.totalLabaKotorStlhPphFinal['nonJoIntegratedEkstern'] = ekstern;
-  result1.totalLabaKotorStlhPphFinal['joKso'] = jo;
-  result1.totalLabaKotorStlhPphFinal['intern'] = intern;
-
-  result2.labaKotorStlhPphFinalLama['lama'] = totalLalu;
-  result2.labaKotorStlhPphFinalLama['eksternIntern'] = eksternLalu;
-  result2.labaKotorStlhPphFinalLama['joKso'] = joLalu;
-  result2.labaKotorStlhPphFinalLama['intern'] = internLalu;
-
-  result3.labaKotorStlhPphFinalBaru['baru'] = totalBaru;
-  result3.labaKotorStlhPphFinalBaru['eksternIntern'] = eksternBaru;
-  result3.labaKotorStlhPphFinalBaru['joKso'] = joBaru;
-  result3.labaKotorStlhPphFinalBaru['intern'] = internBaru;
-
-  var data1 = JSON.stringify(result1);
-  var data2 = JSON.stringify(result2);
-  var data3 = JSON.stringify(result3);
-
-  var parallelFunctionList = [];
-
-  var parallelFunction = function(parallelCallback){
-    var db_mobile_total_laba_kotor_stlh_pph_final = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data1
-    };
-
-    db.query('INSERT INTO db_mobile_total_laba_kotor_stlh_pph_final SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_total_laba_kotor_stlh_pph_final, db_mobile_total_laba_kotor_stlh_pph_final], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_laba_kotor_stlh_pph_final_lama = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data2
-    };
-
-    db.query('INSERT INTO db_mobile_laba_kotor_stlh_pph_final_lama SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_laba_kotor_stlh_pph_final_lama, db_mobile_laba_kotor_stlh_pph_final_lama], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  parallelFunction = function(parallelCallback){
-    var db_mobile_laba_kotor_stlh_pph_final_baru = {
-      id_proyek: idProyekHO,
-      bulan: month,
-      tahun: year,
-      data: data3
-    };
-
-    db.query('INSERT INTO db_mobile_laba_kotor_stlh_pph_final_baru SET ? ' +
-    'ON DUPLICATE KEY ' +
-    'UPDATE ? ',
-    [db_mobile_laba_kotor_stlh_pph_final_baru, db_mobile_laba_kotor_stlh_pph_final_baru], function(err, result){
-      if(err){
-        console.log(err);
-        parallelCallback(err);
-      }else{
-        parallelCallback();
-      }
-    });
-  }
-  parallelFunctionList.push(parallelFunction);
-
-  Flow.parallel(parallelFunctionList, function(){
-      callback();
-    },
-    function(error){
-      return db.rollback(function() {
-        callback(error);
-      });
-    }
-  );
+  callback();
 }

@@ -1,0 +1,566 @@
+{
+    "month": "1",
+    "year": "2016",
+    "jsonData": {
+        "totalKontrakDihadapi": {
+            "total": {
+                "rkap": 6797021000000,
+                "raSdSaatIni": 4214011000000,
+                "riSaatIni": 4153224000000,
+                "persenRiThdRa": 98.56,
+                "prognosa": 6797021000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": 6394384000000,
+                "raSdSaatIni": 4027115000000,
+                "riSaatIni": 4103842000000,
+                "persenRiThdRa": 101.91,
+                "prognosa": 6394384000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "intern": {
+                "rkap": 402637000000,
+                "raSdSaatIni": 186896000000,
+                "riSaatIni": 49381000000,
+                "persenRiThdRa": 26.42,
+                "prognosa": 402637000000,
+                "persenPrognosa": 100
+            }
+        },
+        "sisaKontrakDihadapi": {
+            "sisaKontrakPesananTahunLalu": {
+                "rkap": 4197021000000,
+                "raSdSaatIni": 4197021000000,
+                "riSaatIni": 4100496000000,
+                "persenRiThdRa": 97.7,
+                "prognosa": 4197021000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": 4023825000000,
+                "raSdSaatIni": 4023825000000,
+                "riSaatIni": 4051115000000,
+                "persenRiThdRa": 100.68,
+                "prognosa": 4023825000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "intern": {
+                "rkap": 173196000000,
+                "raSdSaatIni": 173196000000,
+                "riSaatIni": 49381000000,
+                "persenRiThdRa": 28.51,
+                "prognosa": 173196000000,
+                "persenPrognosa": 100
+            }
+        },
+        "pesananBaruKontrakDihadapi": {
+            "kontrakPesananBaru": {
+                "rkap": 2600000000000,
+                "raSdSaatIni": 16990000000,
+                "riSaatIni": 52727000000,
+                "persenRiThdRa": 310.34,
+                "prognosa": 2600000000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": 2370559000000,
+                "raSdSaatIni": 3290000000,
+                "riSaatIni": 52727000000,
+                "persenRiThdRa": 1602.65,
+                "prognosa": 2370559000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "intern": {
+                "rkap": 229441000000,
+                "raSdSaatIni": 13700000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 229441000000,
+                "persenPrognosa": 100
+            }
+        },
+        "totalPenjualan": {
+            "total": {
+                "rkap": 1900000000000,
+                "raSdSaatIni": 110365000000,
+                "riSaatIni": 131308000000,
+                "persenRiThdRa": 118.74,
+                "prognosa": 1900000000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": 1774024000000,
+                "raSdSaatIni": 101028000000,
+                "riSaatIni": 131044000000,
+                "persenRiThdRa": 129.45,
+                "prognosa": 1774024000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "intern": {
+                "rkap": 125976000000,
+                "raSdSaatIni": 9337000000,
+                "riSaatIni": 264000000,
+                "persenRiThdRa": 2.83,
+                "prognosa": 125976000000,
+                "persenPrognosa": 100
+            }
+        },
+        "penjualanLama": {
+            "lama": {
+                "rkap": 1512550000000,
+                "raSdSaatIni": 105757000000,
+                "riSaatIni": 131308000000,
+                "persenRiThdRa": 123.91,
+                "prognosa": 1512550000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": 1439549000000,
+                "raSdSaatIni": 99897000000,
+                "riSaatIni": 130779000000,
+                "persenRiThdRa": 130.91,
+                "prognosa": 1439549000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "intern": {
+                "rkap": 73001000000,
+                "raSdSaatIni": 5860000000,
+                "riSaatIni": 264000000,
+                "persenRiThdRa": 4.51,
+                "prognosa": 73001000000,
+                "persenPrognosa": 100
+            }
+        },
+        "penjualanBaru": {
+            "baru": {
+                "rkap": 387450000000,
+                "raSdSaatIni": 4608000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 387450000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": 334475000000,
+                "raSdSaatIni": 1131000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 334475000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "intern": {
+                "rkap": 52975000000,
+                "raSdSaatIni": 3477000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 52975000000,
+                "persenPrognosa": 100
+            }
+        },
+        "totalLabaKotor": {
+            "total": {
+                "rkap": 202000000000,
+                "raSdSaatIni": 11864000000,
+                "riSaatIni": 12301000000,
+                "persenRiThdRa": 111.43,
+                "prognosa": 202000000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": 202000000000,
+                "raSdSaatIni": 11864000000,
+                "riSaatIni": 12301000000,
+                "persenRiThdRa": 111.43,
+                "prognosa": 202000000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "labaKotorLama": {
+            "lama": {
+                "rkap": 156693000000,
+                "raSdSaatIni": 11032000000,
+                "riSaatIni": 12293000000,
+                "persenRiThdRa": 111.43,
+                "prognosa": 156692000000,
+                "persenPrognosa": 100
+            },
+            "eksternIntern": {
+                "rkap": 156693000000,
+                "raSdSaatIni": 11032000000,
+                "riSaatIni": 12293000000,
+                "persenRiThdRa": 111.43,
+                "prognosa": 156692000000,
+                "persenPrognosa": 100.01
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "labaKotorBaru": {
+            "baru": {
+                "rkap": 45307000000,
+                "raSdSaatIni": 832000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 45308000000,
+                "persenPrognosa": 100
+            },
+            "eksternIntern": {
+                "rkap": 45307000000,
+                "raSdSaatIni": 832000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 45308000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "totalPphFinal": {
+            "total": {
+                "rkap": -61000000000,
+                "raSdSaatIni": -3544000000,
+                "riSaatIni": -3961000000,
+                "persenRiThdRa": 111.76,
+                "prognosa": -61000000000,
+                "persenPrognosa": 100
+            },
+            "ekstern": {
+                "rkap": -61000000000,
+                "raSdSaatIni": -3544000000,
+                "riSaatIni": -3961000000,
+                "persenRiThdRa": 111.76,
+                "prognosa": -61000000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "pphFinalLama": {
+            "lama": {
+                "rkap": -47577000000,
+                "raSdSaatIni": -3313000000,
+                "riSaatIni": -3961000000,
+                "persenRiThdRa": 119.55,
+                "prognosa": -47576000000,
+                "persenPrognosa": 100
+            },
+            "eksternIntern": {
+                "rkap": -47577000000,
+                "raSdSaatIni": -3313000000,
+                "riSaatIni": -3961000000,
+                "persenRiThdRa": 119.55,
+                "prognosa": -47576000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "pphFinalBaru": {
+            "baru": {
+                "rkap": -13423000000,
+                "raSdSaatIni": -231000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": -13423000000,
+                "persenPrognosa": 100.01
+            },
+            "eksternIntern": {
+                "rkap": -13423000000,
+                "raSdSaatIni": -231000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": -13423000000,
+                "persenPrognosa": 100.01
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "totalLabaKotorStlhPphFinal": {
+            "total": {
+                "rkap": 141000000000,
+                "persenRkap": 0,
+                "raSdSaatIni": 8320000000,
+                "persenRaSdSaatIni": 0,
+                "riSaatIni": 8256000000,
+                "persenRiThdRa": 99.23,
+                "persenRiSaatIni": 0,
+                "prognosa": 141000000000,
+                "persenPrognosa": 100,
+                "persentasePrognosa": 0
+            },
+            "nonJoIntegratedEkstern": {
+                "rkap": 141000000000,
+                "raSdSaatIni": 8320000000,
+                "riSaatIni": 8256000000,
+                "persenRiThdRa": 99.23,
+                "prognosa": 141000000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "labaKotorStlhPphFinalLama": {
+            "lama": {
+                "rkap": 109116000000,
+                "raSdSaatIni": 7719000000,
+                "riSaatIni": 8340000000,
+                "persenRiThdRa": 107.95,
+                "prognosa": 109116000000,
+                "persenPrognosa": 100
+            },
+            "eksternIntern": {
+                "rkap": 109116000000,
+                "raSdSaatIni": 7719000000,
+                "riSaatIni": 8340000000,
+                "persenRiThdRa": 107.95,
+                "prognosa": 109116000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "labaKotorStlhPphFinalBaru": {
+            "lama": {
+                "rkap": 31884000000,
+                "raSdSaatIni": 2118000000,
+                "riSaatIni": 516000000,
+                "persenRiThdRa": 24.38,
+                "prognosa": 31884000000,
+                "persenPrognosa": 100
+            },
+            "eksternIntern": {
+                "rkap": 31884000000,
+                "raSdSaatIni": 2118000000,
+                "riSaatIni": 516000000,
+                "persenRiThdRa": 24.38,
+                "prognosa": 31884000000,
+                "persenPrognosa": 100
+            },
+            "joKso": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "efisiensiInefisiensilabaKotorStlhPphFinal": {
+            "efisiensiInefisiensi": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": -77000000,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "biayaStandar": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": -590000000,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            },
+            "realisasiBiaya": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": -666000000,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "biayaUsaha": {
+            "biayaUsaha": {
+                "rkap": -32000000000,
+                "persenRkap": 0,
+                "raSdSaatIni": -2410000000,
+                "persenRaSdSaatIni": 0,
+                "riSaatIni": -2110000000,
+                "persenRiThdRa": 87.55,
+                "persenRiSaatIni": 0,
+                "prognosa": -32000000000,
+                "persenPrognosa": 100,
+                "persentasePrognosa": 0
+            },
+            "biayaUsahaDepartemen": {
+                "rkap": -32000000000,
+                "raSdSaatIni": -2410000000,
+                "riSaatIni": -2110000000,
+                "persenRiThdRa": 87.55,
+                "prognosa": -32000000000,
+                "persenPrognosa": 100
+            },
+            "kompensasiBiayaUsaha": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "labaUsaha": {
+            "labaUsaha": {
+                "rkap": 109000000000,
+                "persenRkap": 0,
+                "raSdSaatIni": 5910000000,
+                "persenRaSdSaatIni": 0,
+                "riSaatIni": 6146000000,
+                "persenRiThdRa": 103.99,
+                "persenRiSaatIni": 0,
+                "prognosa": 109000000,
+                "persenPrognosa": 100,
+                "persentasePrognosa": 0
+            }
+        },
+        "labaUsahaLspLabaRugiLain": {
+            "labaRugiLain": {
+                "rkap": -4000000000,
+                "raSdSaatIni": 500000000,
+                "riSaatIni": 1628000000,
+                "persenRiThdRa": 325.6,
+                "prognosa": -4000000000,
+                "persenPrognosa": 100
+            },
+            "bunga": {
+                "rkap": -1000000000,
+                "raSdSaatIni": -83000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": -1000000000,
+                "persenPrognosa": 100
+            },
+            "labaRugiPenjualanAktivaTetap": {
+                "rkap": -3000000000,
+                "raSdSaatIni": 583000000,
+                "riSaatIni": 0,
+                "persenRiThdRa": 0,
+                "prognosa": -3000000000,
+                "persenPrognosa": 100
+            },
+            "lainLain": {
+                "rkap": 0,
+                "raSdSaatIni": 0,
+                "riSaatIni": 1628000000,
+                "persenRiThdRa": 0,
+                "prognosa": 0,
+                "persenPrognosa": 0
+            }
+        },
+        "labaSebelumPajak": {
+            "labaSebelumPajak": {
+                "rkap": 105000000000,
+                "persenRkap": 0,
+                "raSdSaatIni": 6410000000,
+                "persenRaSdSaatIni": 0,
+                "riSaatIni": 7774000000,
+                "persenRiThdRa": 121.27,
+                "persenRiSaatIni": 0,
+                "prognosa": 105000000000,
+                "persenPrognosa": 100,
+                "persentasePrognosa": 0
+            }
+        }
+    }
+}
