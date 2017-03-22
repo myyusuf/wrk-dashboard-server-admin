@@ -121,7 +121,9 @@ var insertProjectProgress = function(user, db, year, month, callback){
     created_time: new Date()
   };
 
-  db.query('INSERT INTO project_progress SET ?', projectProgress, function(err, result){
+  db.query('INSERT INTO project_progress SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ', [projectProgress, projectProgress], function(err, result){
     if(err){
       callback(err);
     }else{

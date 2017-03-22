@@ -21,12 +21,14 @@ exports.readExcel = function (fileName, db, user, reply){
     const month = worksheet['B2'].v;
     const year = worksheet['C2'].v;
 
+    var idProyek = worksheet["A2"].v;
+
     db.beginTransaction(function(err) {
       if (err) { throw err; };
 
         Flow.series([
             function (callback) {
-              insertProjectProgress(user, db, year, month, callback);
+              insertProjectProgress(user, db, year, month, idProyek, callback);
             },
             function (callback) {
               insertProjectInfoKonsFab(workbook, db, year, month, callback);
@@ -63,16 +65,21 @@ exports.readExcel = function (fileName, db, user, reply){
     });
 }
 
-var insertProjectProgress = function(user, db, year, month, callback){
+var insertProjectProgress = function(user, db, year, month, idProyek, callback){
+
+  var key = user.scope[0] + idProyek;
+
   var projectProgress = {
     year: year,
     month: month,
     username: user.username,
-    key: user.scope[0],
+    key: key,
     created_time: new Date()
   };
 
-  db.query('INSERT INTO project_progress SET ?', projectProgress, function(err, result){
+  db.query('INSERT INTO project_progress SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ', [projectProgress, projectProgress], function(err, result){
     if(err){
       callback(err);
     }else{

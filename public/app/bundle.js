@@ -2357,7 +2357,7 @@
 	        rendergridrows: function rendergridrows(params) {
 	          return params.data;
 	        },
-	        columns: [{ text: 'Tahun', datafield: 'year', width: columnWidth }, { text: 'Bulan', datafield: 'month', width: columnWidth }, { text: 'Username', datafield: 'username', width: columnWidth }, { text: 'Key', datafield: 'key', width: columnWidth }, { text: 'Cretaed Time', datafield: 'created_time', cellsformat: 'dd-MM-yyyy hh:mm:ss', width: columnWidth }]
+	        columns: [{ text: 'Tahun', datafield: 'year', width: columnWidth }, { text: 'Bulan', datafield: 'month', width: columnWidth }, { text: 'Username', datafield: 'username', width: columnWidth }, { text: 'Key', datafield: 'key', width: columnWidth }, { text: 'Created Time', datafield: 'created_time', cellsformat: 'dd-MM-yyyy hh:mm:ss', width: columnWidth }]
 	      };
 
 	      this.dataGrid = new _DataGrid2.default({
