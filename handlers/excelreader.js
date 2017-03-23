@@ -45,6 +45,17 @@ var netProfitAdder = function(a, b) {
   };
 };
 
+var netProfitSubstract = function(a, b) {
+  return {
+    "rkap": a.rkap - b.rkap,
+    "raSdSaatIni": a.raSdSaatIni - b.raSdSaatIni,
+    "riSaatIni": a.riSaatIni - b.riSaatIni,
+    "persenRiThdRa": a.persenRiThdRa - b.persenRiThdRa,
+    "prognosa": a.prognosa - b.prognosa,
+    "persenPrognosa": 0
+  };
+};
+
 const idProyekHO = 'WGPUS001';
 
 var result = {};
@@ -79,6 +90,12 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertLkPphFinal(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertHasilUsaha(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertLabaUsaha(workbook, db, year, month, callback);
             },
             function (callback) {
               insertNetProfit(db, year, month, callback);
@@ -426,17 +443,6 @@ var insertLkPphFinal = function(workbook, db, year, month, callback){
   var first_sheet_name = workbook.SheetNames[0];
   var worksheet = workbook.Sheets[first_sheet_name];
 
-  var netProfitSubstract = function(a, b) {
-    return {
-      "rkap": a.rkap - b.rkap,
-      "raSdSaatIni": a.raSdSaatIni - b.raSdSaatIni,
-      "riSaatIni": a.riSaatIni - b.riSaatIni,
-      "persenRiThdRa": a.persenRiThdRa - b.persenRiThdRa,
-      "prognosa": a.prognosa - b.prognosa,
-      "persenPrognosa": 0
-    };
-  };
-
   var eksternLalu = [result.penjualanLama.ekstern, result.pphFinalLama.eksternIntern].reduce(netProfitSubstract);
   var joLalu = [result.penjualanLama.joKso, result.pphFinalLama.joKso].reduce(netProfitSubstract);
   var internLalu = [result.penjualanLama.intern, result.pphFinalLama.intern].reduce(netProfitSubstract);
@@ -477,6 +483,67 @@ var insertLkPphFinal = function(workbook, db, year, month, callback){
   result.labaKotorStlhPphFinalBaru['eksternIntern'] = eksternBaru;
   result.labaKotorStlhPphFinalBaru['joKso'] = joBaru;
   result.labaKotorStlhPphFinalBaru['intern'] = internBaru;
+
+  callback();
+}
+
+var insertHasilUsaha = function(workbook, db, year, month, callback){
+
+  var first_sheet_name = workbook.SheetNames[0];
+  var worksheet = workbook.Sheets[first_sheet_name];
+
+  var biayaUsaha = getNetProfit(worksheet, 'T', 3);
+
+  // netProfit['rkap'] = rkap;
+  // netProfit['raSdSaatIni'] = raSdSaatIni;
+  // netProfit['riSaatIni'] = riSaatIni;
+  // netProfit['persenRiThdRa'] = rkap;
+  // netProfit['prognosa'] = prognosa;
+  // netProfit['persenPrognosa'] = persenPrognosa;
+
+  // "rkap": 0,
+  // "persenRkap": 0,
+  // "raSdSaatIni": 0,
+  // "persenRaSdSaatIni": 0,
+  // "riSaatIni": 0,
+  // "persenRiThdRa": 0,
+  // "persenRiSaatIni": 0,
+  // "prognosa": 0,
+  // "persenPrognosa": 0,
+  // "persentasePrognosa": 0
+
+  result.biayaUsaha['biayaUsaha']['rkap'] = biayaUsaha.rkap;
+  result.biayaUsaha['biayaUsaha']['raSdSaatIni'] = biayaUsaha.raSdSaatIni;
+  result.biayaUsaha['biayaUsaha']['riSaatIni'] = biayaUsaha.riSaatIni;
+  result.biayaUsaha['biayaUsaha']['persenRiThdRa'] = biayaUsaha.persenRiThdRa;
+  result.biayaUsaha['biayaUsaha']['prognosa'] = biayaUsaha.prognosa;
+  result.biayaUsaha['biayaUsaha']['persenPrognosa'] = biayaUsaha.persenPrognosa;
+
+  callback();
+}
+
+var insertLabaUsaha = function(workbook, db, year, month, callback){
+
+  var first_sheet_name = workbook.SheetNames[0];
+  var worksheet = workbook.Sheets[first_sheet_name];
+
+  var labaUsaha = [result.totalLabaKotorStlhPphFinal.total, result.biayaUsaha.biayaUsaha].reduce(netProfitAdder);
+
+  var bunga = getNetProfit(worksheet, 'W', 9);
+  var labaRugiLain = getNetProfit(worksheet, 'W', 15);
+
+  var lsp = [labaUsaha, bunga, labaRugiLain].reduce(netProfitAdder);
+
+  result.labaUsaha['labaUsaha']['rkap'] = labaUsaha.rkap;
+  result.labaUsaha['labaUsaha']['raSdSaatIni'] = labaUsaha.raSdSaatIni;
+  result.labaUsaha['labaUsaha']['riSaatIni'] = labaUsaha.riSaatIni;
+  result.labaUsaha['labaUsaha']['persenRiThdRa'] = labaUsaha.persenRiThdRa;
+  result.labaUsaha['labaUsaha']['prognosa'] = labaUsaha.prognosa;
+  result.labaUsaha['labaUsaha']['persenPrognosa'] = labaUsaha.persenPrognosa;
+
+  result.labaUsahaLspLabaRugiLain['labaRugiLain'] = labaRugiLain;
+  result.labaUsahaLspLabaRugiLain['bunga'] = bunga;
+  result.labaUsahaLspLabaRugiLain['lainLain'] = lsp;
 
   callback();
 }
