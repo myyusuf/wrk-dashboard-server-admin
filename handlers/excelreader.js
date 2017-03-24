@@ -101,6 +101,9 @@ exports.readExcel = function (fileName, db, user, reply){
               insertNetProfit(db, year, month, callback);
             },
             function (callback) {
+              insertSummaryNetProfit(db, year, month, callback);
+            },
+            function (callback) {
               insertPiutang(workbook, db, year, month, callback);
             },
             function (callback) {
@@ -150,6 +153,28 @@ var insertProjectProgress = function(user, db, year, month, callback){
 }
 
 var insertNetProfit = function(db, year, month, callback){
+
+  var tb_net_profit = {
+    id_proyek: idProyekHO,
+    bulan: month,
+    tahun: year,
+    data: JSON.stringify(result)
+  };
+
+  db.query('INSERT INTO tb_net_profit SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [tb_net_profit, tb_net_profit], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+}
+
+var insertSumaryNetProfit = function(db, year, month, callback){
 
   var tb_net_profit = {
     id_proyek: idProyekHO,
