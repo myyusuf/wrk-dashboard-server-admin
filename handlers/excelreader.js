@@ -104,6 +104,9 @@ exports.readExcel = function (fileName, db, user, reply){
             //   insertSummaryNetProfit(db, year, month, callback);
             // },
             function (callback) {
+              insertSales(db, year, month, callback);
+            },
+            function (callback) {
               insertPiutang(workbook, db, year, month, callback);
             },
             function (callback) {
@@ -215,6 +218,31 @@ var insertOmzetKontrak = function(db, year, month, callback){
   'ON DUPLICATE KEY ' +
   'UPDATE ? ',
   [omzet_kontrak, omzet_kontrak], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+}
+
+var insertSales = function(db, year, month, callback){
+
+  var penjualanRa = result.totalPenjualan.total.raSdSaatIni;
+  var penjualanRi = result.totalPenjualan.total.riSaatIni;
+
+  var laporan_keuangan = {
+    bulan: month,
+    tahun: year,
+    penjualan_ra: penjualanRa,
+    penjualan_ri: penjualanRi
+  };
+
+  db.query('INSERT INTO laporan_keuangan SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [laporan_keuangan, laporan_keuangan], function(err, result){
     if(err){
       console.log(err);
       callback(err);
