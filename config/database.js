@@ -1,8 +1,8 @@
 module.exports = {
         'mysqlConnectionData' : {
-        host: 'localhost',
-        user: 'root',
-        password: 'hellopower11',
+        host: '202.159.16.28',
+        user: 'wrkdashboarduser',
+        password: 'wrkdashuser33',
         database: 'wrk_dashboard'
     }
 };

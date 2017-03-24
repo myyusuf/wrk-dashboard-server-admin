@@ -100,11 +100,14 @@ exports.readExcel = function (fileName, db, user, reply){
             function (callback) {
               insertNetProfit(db, year, month, callback);
             },
-            function (callback) {
-              insertSummaryNetProfit(db, year, month, callback);
-            },
+            // function (callback) {
+            //   insertSummaryNetProfit(db, year, month, callback);
+            // },
             function (callback) {
               insertPiutang(workbook, db, year, month, callback);
+            },
+            function (callback) {
+              insertOmzetKontrak(db, year, month, callback);
             },
             function (callback) {
               insertProjectProgress(user, db, year, month, callback);
@@ -187,6 +190,31 @@ var insertSumaryNetProfit = function(db, year, month, callback){
   'ON DUPLICATE KEY ' +
   'UPDATE ? ',
   [tb_net_profit, tb_net_profit], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+}
+
+var insertOmzetKontrak = function(db, year, month, callback){
+
+  var rencana = result.totalKontrakDihadapi.total.raSdSaatIni;
+  var realisasi = result.totalKontrakDihadapi.total.riSaatIni;
+
+  var omzet_kontrak = {
+    bulan: month,
+    tahun: year,
+    rencana: rencana,
+    realisasi: realisasi
+  };
+
+  db.query('INSERT INTO omzet_kontrak SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [omzet_kontrak, omzet_kontrak], function(err, result){
     if(err){
       console.log(err);
       callback(err);
