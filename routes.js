@@ -7,7 +7,7 @@ const Assets = require('./handlers/assets');
 
 const Project = require('./handlers/api/project');
 const ProjectProgress = require('./handlers/api/project_progress');
-// const ProjectProgress = require('./handlers/project_progress');
+const AdminUsers = require('./handlers/admin_users');
 
 module.exports = [
   {
@@ -87,6 +87,50 @@ module.exports = [
       method: 'GET',
       path: '/api/project_progress',
       handler: ProjectProgress.find
+  },
+  {
+      method: 'POST',
+      path: '/adminusers',
+      handler: AdminUsers.create,
+      config: {
+          auth: {
+            strategy: 'session',
+            scope: ['HO']
+          }
+      }
+  },
+  {
+      method: 'GET',
+      path: '/adminusers',
+      handler: AdminUsers.find,
+      config: {
+          auth: {
+            strategy: 'session',
+            scope: ['HO']
+          }
+      }
+  },
+  {
+      method: 'PUT',
+      path: '/adminusers/{username}',
+      handler: AdminUsers.update,
+      config: {
+          auth: {
+            strategy: 'session',
+            scope: ['HO']
+          }
+      }
+  },
+  {
+      method: 'DELETE',
+      path: '/adminusers/{username}',
+      handler: AdminUsers.delete,
+      config: {
+          auth: {
+            strategy: 'session',
+            scope: ['HO']
+          }
+      }
   },
   {
       method: 'GET',

@@ -2,7 +2,7 @@ const Wreck = require('wreck');
 
 exports.login = function (request, reply) {
 
-  const sql = 'SELECT * FROM tb_admin_user WHERE username = ?';
+  const sql = 'SELECT * FROM db_mobile_user WHERE username = ?';
 
   this.db.query(sql, [request.payload.username], (err, result) => {
 

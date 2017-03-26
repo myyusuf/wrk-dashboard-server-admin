@@ -18,6 +18,7 @@
     "inert": "3.x.x",
     "vision": "4.x.x",
     "handlebars": "4.0.x",
+    "uuid": "^3.0.1",
     "wreck": "7.x.x",
     "hapi-auth-bearer-token": "4.x.x",
     "nimble": "0.0.2"

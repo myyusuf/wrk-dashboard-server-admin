@@ -84,6 +84,10 @@
 
 	var _ProjectProgressList2 = _interopRequireDefault(_ProjectProgressList);
 
+	var _UserList = __webpack_require__(25);
+
+	var _UserList2 = _interopRequireDefault(_UserList);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var splitter = new _Splitter2.default();
@@ -107,6 +111,13 @@
 	    id: 'report1',
 	    label: "Report 1"
 	  }]
+	}, {
+	  label: "Settings",
+	  expanded: true,
+	  items: [{
+	    id: 'adminusers',
+	    label: "User"
+	  }]
 	}];
 
 	var tree = new _Tree2.default({
@@ -116,10 +127,10 @@
 	    if (!tabs.selectTabByTitle(item.label)) {
 	      if (item.id == 'project_list') {
 	        tabs.add(item.id, item.label, projectList);
-	      } else {
-	        if (item.id == 'project_progress_list') {
-	          tabs.add(item.id, item.label, projectProgressList);
-	        }
+	      } else if (item.id == 'project_progress_list') {
+	        tabs.add(item.id, item.label, projectProgressList);
+	      } else if (item.id == 'adminusers') {
+	        tabs.add(item.id, item.label, userList);
 	      }
 	      //  }else if(item.id == 'jadwal_mingguan'){
 	      //      tabs.add(item.id, item.label, weeklyScheduleList);
@@ -142,6 +153,7 @@
 
 	var projectList = new _ProjectList2.default();
 	var projectProgressList = new _ProjectProgressList2.default();
+	var userList = new _UserList2.default();
 
 	var navigationBar = new _NavigationBar2.default([{
 	  title: 'Application',
@@ -2546,6 +2558,659 @@
 	}();
 
 	exports.default = FileUpload;
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Utils = __webpack_require__(3);
+
+	var _Button = __webpack_require__(8);
+
+	var _Button2 = _interopRequireDefault(_Button);
+
+	var _ToggleButton = __webpack_require__(10);
+
+	var _ToggleButton2 = _interopRequireDefault(_ToggleButton);
+
+	var _TextBox = __webpack_require__(11);
+
+	var _TextBox2 = _interopRequireDefault(_TextBox);
+
+	var _DataGrid = __webpack_require__(14);
+
+	var _DataGrid2 = _interopRequireDefault(_DataGrid);
+
+	var _AddUserWindow = __webpack_require__(26);
+
+	var _AddUserWindow2 = _interopRequireDefault(_AddUserWindow);
+
+	var _EditUserWindow = __webpack_require__(29);
+
+	var _EditUserWindow2 = _interopRequireDefault(_EditUserWindow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var UserList = function () {
+	  function UserList() {
+	    _classCallCheck(this, UserList);
+
+	    this.id = (0, _Utils.guid)();
+	  }
+
+	  _createClass(UserList, [{
+	    key: 'render',
+	    value: function render(container) {
+
+	      var _this = this;
+
+	      var url = "/adminusers";
+
+	      var source = {
+	        datatype: "json",
+	        datafields: [{ name: 'username', type: 'string' }, { name: 'name', type: 'string' }, { name: 'email', type: 'string' }, { name: 'role', type: 'string' }],
+	        id: "username",
+	        url: url
+	      };
+
+	      var onSearch = function onSearch(data) {
+	        data['searchTxt'] = searchTextBox.getValue();
+	        return data;
+	      };
+
+	      var dataGridOptions = {
+	        width: '100%',
+	        height: '100%',
+	        pageable: true,
+	        altrows: true,
+	        theme: 'metro',
+	        virtualmode: true,
+	        rendergridrows: function rendergridrows(params) {
+	          return params.data;
+	        },
+	        columns: [{ text: 'Username', datafield: 'username', width: '30%' }, { text: 'Name', datafield: 'name', width: '35%' }, { text: 'Email', datafield: 'email', width: '20%' }, { text: 'Role', datafield: 'role', width: '15%' }],
+	        groups: []
+	      };
+
+	      this.dataGrid = new _DataGrid2.default({
+	        source: source,
+	        onSearch: onSearch,
+	        onRowDoubleClick: function onRowDoubleClick(data) {
+	          var editUserWindow = new _EditUserWindow2.default({
+	            data: data,
+	            onSaveSuccess: function onSaveSuccess() {
+	              _this.dataGrid.refresh();
+	            }
+	          });
+	          editUserWindow.render($('#dialogWindowContainer'));
+	          editUserWindow.open();
+	        },
+	        dataGridOptions: dataGridOptions
+	      });
+
+	      var searchTextBox = new _TextBox2.default({ placeHolder: 'Kode atau Nama', width: 250, height: 24 });
+	      var searchButton = new _Button2.default({
+	        imgSrc: '/assets/images/search.png',
+	        theme: 'metro',
+	        width: 30,
+	        height: 26,
+	        onClick: function onClick() {
+	          _this.dataGrid.refresh();
+	        }
+	      });
+
+	      var addUserButton = new _Button2.default({
+	        title: 'Tambah User',
+	        template: 'primary',
+	        height: 26,
+	        onClick: function onClick() {
+	          var addUserWindow = new _AddUserWindow2.default({
+	            onSaveSuccess: function onSaveSuccess() {
+	              _this.dataGrid.refresh();
+	            }
+	          });
+	          addUserWindow.render($('#dialogWindowContainer'));
+	          addUserWindow.open();
+	        }
+	      });
+
+	      var table = $('<table style="height: 100%; width: 100%; margin: -3px; "></table>');
+	      var tr = $('<tr></tr>');
+	      var td = $('<td style="padding: 0; height: 40px;"></td>');
+	      table.appendTo(container);
+	      tr.appendTo(table);
+	      td.appendTo(tr);
+
+	      var innerTable = $('<table style="height: 100%; width: 100%;"></table>');
+	      var innerTr = $('<tr></tr>');
+	      var innerTd = $('<td style="padding-top: 6px; padding-left: 10px; padding-right: 8px; width: 50px; height: 100%;"></td>');
+	      innerTable.appendTo(td);
+	      innerTr.appendTo(innerTable);
+	      innerTd.appendTo(innerTr);
+	      addUserButton.render(innerTd);
+
+	      innerTd = $('<td style="padding-top: 6px; width: 200px; height: 100%;"></td>');
+	      innerTd.appendTo(innerTr);
+	      searchTextBox.render(innerTd);
+
+	      innerTd = $('<td style="padding-top: 6px; height: 100%; "></td>');
+	      var _tempContainer = $('<div style="margin-left: -5px;"></div>');
+	      _tempContainer.appendTo(innerTd);
+	      innerTd.appendTo(innerTr);
+	      searchButton.render(_tempContainer);
+
+	      tr = $('<tr></tr>');
+	      td = $('<td style="padding: 0;"></td>');
+	      tr.appendTo(table);
+	      td.appendTo(tr);
+
+	      this.dataGrid.render(td);
+	    }
+	  }]);
+
+	  return UserList;
+	}();
+
+	exports.default = UserList;
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Utils = __webpack_require__(3);
+
+	var _Button = __webpack_require__(8);
+
+	var _Button2 = _interopRequireDefault(_Button);
+
+	var _Form = __webpack_require__(16);
+
+	var _Form2 = _interopRequireDefault(_Form);
+
+	var _AddWindow = __webpack_require__(17);
+
+	var _AddWindow2 = _interopRequireDefault(_AddWindow);
+
+	var _TextBox = __webpack_require__(11);
+
+	var _TextBox2 = _interopRequireDefault(_TextBox);
+
+	var _Label = __webpack_require__(19);
+
+	var _Label2 = _interopRequireDefault(_Label);
+
+	var _PasswordInput = __webpack_require__(27);
+
+	var _PasswordInput2 = _interopRequireDefault(_PasswordInput);
+
+	var _RoleComboBox = __webpack_require__(28);
+
+	var _RoleComboBox2 = _interopRequireDefault(_RoleComboBox);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var AddUserWindow = function () {
+	  function AddUserWindow(options) {
+	    _classCallCheck(this, AddUserWindow);
+
+	    var _this = this;
+
+	    this.id = (0, _Utils.guid)();
+
+	    this.onSaveSuccess = options.onSaveSuccess;
+
+	    var usernameTextBox = new _TextBox2.default({ height: 25, width: '90%' });
+	    var passwordInput = new _PasswordInput2.default({ height: 25, width: '90%' });
+	    var nameTextBox = new _TextBox2.default({ height: 25, width: '90%' });
+	    var emailTextBox = new _TextBox2.default({ height: 25, width: '90%' });
+	    var roleComboBox = new _RoleComboBox2.default({ height: 25, width: '92.5%' });
+
+	    var formItems = [{
+	      name: 'username',
+	      label: 'Username',
+	      content: usernameTextBox,
+	      validation: {
+	        type: 'TEXTBOX',
+	        rule: 'required'
+	      }
+	    }, {
+	      name: 'password',
+	      label: 'Password',
+	      content: passwordInput,
+	      validation: {
+	        type: 'TEXTBOX',
+	        rule: 'required'
+	      }
+	    }, {
+	      name: 'name',
+	      label: 'Name',
+	      content: nameTextBox,
+	      validation: {
+	        type: 'TEXTBOX',
+	        rule: 'required'
+	      }
+	    }, {
+	      name: 'email',
+	      label: 'Email',
+	      content: emailTextBox
+	    }, {
+	      name: 'role',
+	      label: 'Role',
+	      content: roleComboBox,
+	      validation: {
+	        type: 'COMBOBOX',
+	        rule: 'required'
+	      }
+	    }];
+	    var formOptions = {
+	      items: formItems,
+	      labelColumnWidth: '120px',
+	      onValidationSuccess: function onValidationSuccess(formValue) {
+	        $.ajax({
+	          method: "POST",
+	          url: "/adminusers",
+	          data: JSON.stringify(formValue),
+	          beforeSend: function beforeSend(xhr) {
+	            xhr.setRequestHeader('Accept', 'application/json');
+	            xhr.setRequestHeader('Content-Type', 'application/json');
+	          }
+	        }).done(function () {
+	          $("#successNotification").jqxNotification("open");
+	          _this.window.close();
+	          if (_this.onSaveSuccess) {
+	            _this.onSaveSuccess();
+	          }
+	        }).fail(function (jqXHR, textStatus, errorThrown) {
+	          var errorMessage = 'Proses gagal. Status : ' + jqXHR.status + ' [' + jqXHR.statusText + '] : ' + jqXHR.responseText;
+	          $("#errorNotification").html('<div>' + errorMessage + '</div>');
+	          $("#errorNotification").jqxNotification("open");
+	        });
+	      }
+	    };
+
+	    var form = new _Form2.default(formOptions);
+
+	    this.window = new _AddWindow2.default({
+	      width: 390,
+	      height: 280,
+	      title: 'Add User',
+	      content: form,
+	      onSave: function onSave() {
+	        form.validate();
+	      },
+	      onCancel: function onCancel() {
+	        _this.window.close();
+	      }
+	    });
+	  }
+
+	  _createClass(AddUserWindow, [{
+	    key: 'render',
+	    value: function render(container) {
+
+	      var _this = this;
+	      this.window.render(container);
+	    }
+	  }, {
+	    key: 'open',
+	    value: function open() {
+	      this.window.open();
+	    }
+	  }]);
+
+	  return AddUserWindow;
+	}();
+
+	exports.default = AddUserWindow;
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Utils = __webpack_require__(3);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var PasswordInput = function () {
+	  function PasswordInput(options) {
+	    _classCallCheck(this, PasswordInput);
+
+	    this.id = (0, _Utils.guid)();
+
+	    if (options.width) {
+	      this.width = options.width;
+	    }
+
+	    if (options.height) {
+	      this.height = options.height;
+	    }
+
+	    this.placeHolder = options.placeHolder;
+
+	    this.disabled = options.disabled;
+	  }
+
+	  _createClass(PasswordInput, [{
+	    key: 'render',
+	    value: function render(container) {
+	      var textBoxContainer = $('<input type="password" />');
+	      textBoxContainer.attr('id', this.id);
+	      textBoxContainer.appendTo(container);
+
+	      var textBoxOptions = {
+	        theme: 'metro'
+	      };
+
+	      if (this.width) {
+	        textBoxOptions['width'] = this.width;
+	      }
+
+	      if (this.height) {
+	        textBoxOptions['height'] = this.height;
+	      }
+
+	      if (this.placeHolder) {
+	        textBoxOptions['placeHolder'] = this.placeHolder;
+	      }
+
+	      if (this.disabled) {
+	        textBoxOptions['disabled'] = this.disabled;
+	      }
+
+	      textBoxContainer.jqxPasswordInput(textBoxOptions);
+
+	      if (this.initialValue) {
+	        textBoxContainer.val(this.initialValue);
+	      }
+
+	      this.component = textBoxContainer;
+	    }
+	  }, {
+	    key: 'getId',
+	    value: function getId() {
+	      return this.id;
+	    }
+	  }, {
+	    key: 'getValue',
+	    value: function getValue() {
+	      return this.component.val();
+	    }
+	  }]);
+
+	  return PasswordInput;
+	}();
+
+	exports.default = PasswordInput;
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Utils = __webpack_require__(3);
+
+	var _ComboBox = __webpack_require__(12);
+
+	var _ComboBox2 = _interopRequireDefault(_ComboBox);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var RoleComboBox = function () {
+	  function RoleComboBox(options) {
+	    _classCallCheck(this, RoleComboBox);
+
+	    var _this = this;
+
+	    this.id = (0, _Utils.guid)();
+
+	    var typeList = [{ id: 'HO', nama: "Head Office" }, { id: 'PRJ', nama: "Project" }];
+	    var comboBoxOptions = {
+	      displayMember: "nama",
+	      valueMember: "id",
+	      selectedIndex: 0,
+	      width: options.width,
+	      height: 25,
+	      theme: 'metro',
+	      selectionMode: 'dropDownList'
+	    };
+
+	    this.comboBox = new _ComboBox2.default({
+	      localData: typeList,
+	      value: options.value,
+	      comboBoxOptions: comboBoxOptions,
+	      onChange: function onChange(value) {
+	        if (options.onChange) {
+	          options.onChange(value);
+	        }
+	      }
+	    });
+	  }
+
+	  _createClass(RoleComboBox, [{
+	    key: 'getId',
+	    value: function getId() {
+	      return this.comboBox.getId();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render(container) {
+	      this.comboBox.render(container);
+	    }
+	  }, {
+	    key: 'getValue',
+	    value: function getValue() {
+	      return this.comboBox.getValue();
+	    }
+	  }]);
+
+	  return RoleComboBox;
+	}();
+
+	exports.default = RoleComboBox;
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Utils = __webpack_require__(3);
+
+	var _Button = __webpack_require__(8);
+
+	var _Button2 = _interopRequireDefault(_Button);
+
+	var _Form = __webpack_require__(16);
+
+	var _Form2 = _interopRequireDefault(_Form);
+
+	var _EditWindow = __webpack_require__(22);
+
+	var _EditWindow2 = _interopRequireDefault(_EditWindow);
+
+	var _TextBox = __webpack_require__(11);
+
+	var _TextBox2 = _interopRequireDefault(_TextBox);
+
+	var _TextArea = __webpack_require__(18);
+
+	var _TextArea2 = _interopRequireDefault(_TextArea);
+
+	var _Label = __webpack_require__(19);
+
+	var _Label2 = _interopRequireDefault(_Label);
+
+	var _RoleComboBox = __webpack_require__(28);
+
+	var _RoleComboBox2 = _interopRequireDefault(_RoleComboBox);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var EditUserWindow = function () {
+	  function EditUserWindow(options) {
+	    _classCallCheck(this, EditUserWindow);
+
+	    var _this = this;
+
+	    this.id = (0, _Utils.guid)();
+
+	    var user = options.data;
+	    this.onSaveSuccess = options.onSaveSuccess;
+
+	    var usernameTextBox = new _TextBox2.default({ value: user.username, disabled: true, height: 25, width: '90%' });
+	    var nameTextBox = new _TextBox2.default({ value: user.name, height: 25, width: '90%' });
+	    var emailTextBox = new _TextBox2.default({ value: user.email, height: 25, width: '90%' });
+	    var roleComboBox = new _RoleComboBox2.default({ value: user.role, height: 25, width: '92.5%' });
+
+	    var formItems = [{
+	      name: 'username',
+	      label: 'Username',
+	      content: usernameTextBox
+	    }, {
+	      name: 'name',
+	      label: 'Name',
+	      content: nameTextBox,
+	      validation: {
+	        type: 'TEXTBOX',
+	        rule: 'required'
+	      }
+	    }, {
+	      name: 'email',
+	      label: 'Email',
+	      content: emailTextBox
+	    }, {
+	      name: 'role',
+	      label: 'Role',
+	      content: roleComboBox,
+	      validation: {
+	        type: 'COMBOBOX',
+	        rule: 'required'
+	      }
+	    }];
+	    var formOptions = {
+	      items: formItems,
+	      labelColumnWidth: '120px',
+	      onValidationSuccess: function onValidationSuccess(formValue) {
+	        $.ajax({
+	          method: "PUT",
+	          url: "/adminusers/" + user.username,
+	          data: JSON.stringify(formValue),
+	          beforeSend: function beforeSend(xhr) {
+	            xhr.setRequestHeader('Accept', 'application/json');
+	            xhr.setRequestHeader('Content-Type', 'application/json');
+	          }
+	        }).done(function () {
+	          $("#successNotification").jqxNotification("open");
+	          _this.window.close();
+	          if (_this.onSaveSuccess) {
+	            _this.onSaveSuccess();
+	          }
+	        }).fail(function (jqXHR, textStatus, errorThrown) {
+	          var errorMessage = 'Proses gagal. Status : ' + jqXHR.status + ' [' + jqXHR.statusText + '] : ' + jqXHR.responseText;
+	          $("#errorNotification").html('<div>' + errorMessage + '</div>');
+	          $("#errorNotification").jqxNotification("open");
+	        });
+	      }
+	    };
+
+	    var form = new _Form2.default(formOptions);
+
+	    this.window = new _EditWindow2.default({
+	      width: 390,
+	      height: 280,
+	      title: 'Edit User',
+	      content: form,
+	      onSave: function onSave() {
+	        form.validate();
+	      },
+	      onCancel: function onCancel() {
+	        _this.window.close();
+	      },
+	      onDelete: function onDelete() {
+	        var r = confirm("Proses hapus data akan dilakukan!");
+	        if (r == true) {
+	          $.ajax({
+	            method: "DELETE",
+	            url: "/adminusers/" + user.username,
+	            data: {}
+	          }).done(function () {
+	            $("#successNotification").jqxNotification("open");
+	            _this.window.close();
+	            if (_this.onSaveSuccess) {
+	              _this.onSaveSuccess();
+	            }
+	          }).fail(function (jqXHR, textStatus, errorThrown) {
+	            var errorMessage = 'Proses gagal. Status : ' + jqXHR.status + ' [' + jqXHR.statusText + '] : ' + jqXHR.responseText;
+	            $("#errorNotification").html('<div>' + errorMessage + '</div>');
+	            $("#errorNotification").jqxNotification("open");
+	          });
+	        }
+	      }
+	    });
+	  }
+
+	  _createClass(EditUserWindow, [{
+	    key: 'render',
+	    value: function render(container) {
+	      var _this = this;
+	      this.window.render(container);
+	    }
+	  }, {
+	    key: 'open',
+	    value: function open() {
+	      this.window.open();
+	    }
+	  }]);
+
+	  return EditUserWindow;
+	}();
+
+	exports.default = EditUserWindow;
 
 /***/ }
 /******/ ]);
