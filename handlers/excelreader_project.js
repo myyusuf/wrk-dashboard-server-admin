@@ -156,6 +156,17 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
   result.infoProyek.idProyek = idProyek;
   result.infoProyek.persenRaProgress = getNumericExcelValue(worksheet, "E2");
   result.infoProyek.persenRiProgress = getNumericExcelValue(worksheet, "G2");
+  result.infoProyek.labaKotor.ra = getNumericExcelValue(worksheet, "E4");
+  result.infoProyek.labaKotor.ri = getNumericExcelValue(worksheet, "G4");
+  result.infoProyek.rpDeviasi = getNumericExcelValue(worksheet, "E5");
+  result.infoProyek.pdp = getNumericExcelValue(worksheet, "G5");
+  result.infoProyek.bad = getNumericExcelValue(worksheet, "E6");
+  result.infoProyek.rpOk = getNumericExcelValue(worksheet, "G6");
+  result.infoProyek.piutangUsaha.rpPiutangUsaha = getNumericExcelValue(worksheet, "E7");
+  result.infoProyek.piutangRetensi = getNumericExcelValue(worksheet, "G7");
+  result.infoProyek.tagihanBrutto = getNumericExcelValue(worksheet, "E8");
+  result.infoProyek.persediaan = getNumericExcelValue(worksheet, "G8");
+  result.infoProyek.cashFlow = getNumericExcelValue(worksheet, "E9");
 
   var data = JSON.stringify(result);
 

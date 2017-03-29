@@ -100,9 +100,9 @@ exports.readExcel = function (fileName, db, user, reply){
             function (callback) {
               insertNetProfit(db, year, month, callback);
             },
-            // function (callback) {
-            //   insertSummaryNetProfit(db, year, month, callback);
-            // },
+            function (callback) {
+              insertSummaryNetProfit(db, year, month, callback);
+            },
             function (callback) {
               insertSales(db, year, month, callback);
             },
@@ -182,17 +182,17 @@ var insertNetProfit = function(db, year, month, callback){
 
 var insertSumaryNetProfit = function(db, year, month, callback){
 
-  var tb_net_profit = {
-    id_proyek: idProyekHO,
+  var laba_bersih = {
     bulan: month,
     tahun: year,
-    data: JSON.stringify(result)
+    laba_bersih: result.labaUsahaLspLabaRugiLain.labaRugiLain.riSaatIni,
+    rkap: result.labaUsahaLspLabaRugiLain.labaRugiLain.rkap
   };
 
-  db.query('INSERT INTO tb_net_profit SET ? ' +
+  db.query('INSERT INTO laba_bersih SET ? ' +
   'ON DUPLICATE KEY ' +
   'UPDATE ? ',
-  [tb_net_profit, tb_net_profit], function(err, result){
+  [laba_bersih, laba_bersih], function(err, result){
     if(err){
       console.log(err);
       callback(err);
