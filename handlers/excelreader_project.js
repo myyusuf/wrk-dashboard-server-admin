@@ -173,6 +173,28 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
 
   result.infoProyek.alamatProyek = getStringExcelValue(worksheet, "J4");
   result.infoProyek.pemberiKerja = getStringExcelValue(worksheet, "J5");
+  result.infoProyek.rpOk = getNumericExcelValue(worksheet, "J8");
+  result.infoProyek.tglMulaiProyek = getStringExcelValue(worksheet, "J9");
+  result.infoProyek.tglSelesaiProyek = getStringExcelValue(worksheet, "L9");
+
+  var bastArray = [];
+  const MAX_BAST = 10;
+  const BAST_ROW_START = 2;
+
+  for(var i=BAST_ROW_START; i<=(BAST_ROW_START + MAX_BAST); i++){
+    var bastName = getStringExcelValue(worksheet, "N" + i);
+    if(bastName != ""){
+      var bastDate = getStringExcelValue(worksheet, "O" + i);
+      var bast = {
+        nama: bastName,
+        tgl: bastDate
+      }
+
+      bastArray.push(bast);
+    }
+  }
+
+  result.infoProyek.bast = bastArray;
 
   var data = JSON.stringify(result);
 
