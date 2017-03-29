@@ -96,6 +96,7 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
   var result = {
   	"infoProyek" : {
   		"alamatProyek" : "",
+  		"pemberiKerja" : "",
   		"bad" : 0,
   		"bast" : [],
   		"cashFlow" : 0,
@@ -147,6 +148,7 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
   };
 
   var idProyek = worksheet["A2"].v;
+  var namaProyek = worksheet["J3"].v;
   var projectType = 1; // Kons & Fab
   var status = worksheet["C2"].v;
 
@@ -154,6 +156,7 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
   var persenRiProgress = worksheet["F2"] ? worksheet["F2"].v : 0;
 
   result.infoProyek.idProyek = idProyek;
+  result.infoProyek.namaProyek = namaProyek;
   result.infoProyek.persenRaProgress = getNumericExcelValue(worksheet, "E2");
   result.infoProyek.persenRiProgress = getNumericExcelValue(worksheet, "G2");
   result.infoProyek.labaKotor.ra = getNumericExcelValue(worksheet, "E4");
@@ -167,6 +170,9 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
   result.infoProyek.tagihanBrutto = getNumericExcelValue(worksheet, "E8");
   result.infoProyek.persediaan = getNumericExcelValue(worksheet, "G8");
   result.infoProyek.cashFlow = getNumericExcelValue(worksheet, "E9");
+
+  result.infoProyek.alamatProyek = getStringExcelValue(worksheet, "J4");
+  result.infoProyek.pemberiKerja = getStringExcelValue(worksheet, "J5");
 
   var data = JSON.stringify(result);
 
