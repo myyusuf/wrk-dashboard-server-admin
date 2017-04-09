@@ -16,18 +16,29 @@ var getStringExcelValue = function(ws, cellName){
 var getNetProfit = function(theWorksheet, col, startRow){
 
   var netProfit = {};
-  var rkap = theWorksheet[col + startRow].v
-  var raSdSaatIni = theWorksheet[col + (startRow + 1)].v;
-  var riSaatIni = theWorksheet[col + (startRow + 2)].v;
-  var prognosa = theWorksheet[col + (startRow + 3)].v;
+  // var rkap = theWorksheet[col + startRow].v
+  // var raSdSaatIni = parseFloat(theWorksheet[col + (startRow + 1)].v);
+  // var riSaatIni = parseFloat(theWorksheet[col + (startRow + 2)].v);
+  // var prognosa = theWorksheet[col + (startRow + 3)].v;
+  var rkap = getNumericExcelValue(theWorksheet, (col + startRow));
+  var raSdSaatIni = getNumericExcelValue(theWorksheet, (col + (startRow + 1)));
+  var riSaatIni = getNumericExcelValue(theWorksheet, (col + (startRow + 2)));
+  var prognosa = getNumericExcelValue(theWorksheet, (col + (startRow + 3)));
 
-  var persenRiThdRa = (raSdSaatIni / riSaatIni) * 100;
-  var persenPrognosa = 100;
+  var persenRiThdRa = 0;
+  if(raSdSaatIni != 0){
+    persenRiThdRa = (riSaatIni / raSdSaatIni) * 100;
+  }
+
+  var persenPrognosa = 0;
+  if(rkap != 0){
+    persenPrognosa = (prognosa / rkap) * 100;
+  }
 
   netProfit['rkap'] = rkap;
   netProfit['raSdSaatIni'] = raSdSaatIni;
   netProfit['riSaatIni'] = riSaatIni;
-  netProfit['persenRiThdRa'] = rkap;
+  netProfit['persenRiThdRa'] = persenRiThdRa;
   netProfit['prognosa'] = prognosa;
   netProfit['persenPrognosa'] = persenPrognosa;
 
@@ -35,24 +46,46 @@ var getNetProfit = function(theWorksheet, col, startRow){
 }
 
 var netProfitAdder = function(a, b) {
+
+  var persenRiThdRa = 0;
+  if((a.raSdSaatIni + b.raSdSaatIni) != 0){
+    persenRiThdRa = ((a.riSaatIni + b.riSaatIni) / (a.raSdSaatIni + b.raSdSaatIni)) * 100;
+  }
+
+  var persenPrognosa = 0;
+  if((a.rkap + b.rkap) != 0){
+    persenPrognosa = ((a.prognosa + b.prognosa) / (a.rkap + b.rkap)) * 100;
+  }
+
   return {
     "rkap": a.rkap + b.rkap,
     "raSdSaatIni": a.raSdSaatIni + b.raSdSaatIni,
     "riSaatIni": a.riSaatIni + b.riSaatIni,
-    "persenRiThdRa": a.persenRiThdRa + b.persenRiThdRa,
+    "persenRiThdRa": persenRiThdRa,
     "prognosa": a.prognosa + b.prognosa,
-    "persenPrognosa": 0
+    "persenPrognosa": persenPrognosa
   };
 };
 
 var netProfitSubstract = function(a, b) {
+
+  var persenRiThdRa = 0;
+  if((a.raSdSaatIni - b.raSdSaatIni) != 0){
+    persenRiThdRa = ((a.riSaatIni - b.riSaatIni) / (a.raSdSaatIni - b.raSdSaatIni)) * 100;
+  }
+
+  var persenPrognosa = 0;
+  if((a.rkap - b.rkap) != 0){
+    persenPrognosa = ((a.prognosa - b.prognosa) / (a.rkap - b.rkap)) * 100;
+  }
+
   return {
     "rkap": a.rkap - b.rkap,
     "raSdSaatIni": a.raSdSaatIni - b.raSdSaatIni,
     "riSaatIni": a.riSaatIni - b.riSaatIni,
-    "persenRiThdRa": a.persenRiThdRa - b.persenRiThdRa,
+    "persenRiThdRa": persenRiThdRa,
     "prognosa": a.prognosa - b.prognosa,
-    "persenPrognosa": 0
+    "persenPrognosa": persenPrognosa
   };
 };
 
@@ -180,7 +213,7 @@ var insertNetProfit = function(db, year, month, callback){
   });
 }
 
-var insertSumaryNetProfit = function(db, year, month, callback){
+var insertSummaryNetProfit = function(db, year, month, callback){
 
   var laba_bersih = {
     bulan: month,
@@ -326,7 +359,7 @@ var insertTotalKontrakDihadapi = function(workbook, db, year, month, callback){
   var internBaru = getNetProfit(worksheet, 'E', 36);
 
   var totalLaluArray = [eksternLalu, joLalu, internLalu];
-  var totalLalu= totalLaluArray.reduce(netProfitAdder);
+  var totalLalu = totalLaluArray.reduce(netProfitAdder);
 
   var totalBaruArray = [eksternBaru, joBaru, internBaru];
   var totalBaru = totalBaruArray.reduce(netProfitAdder);

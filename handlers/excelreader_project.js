@@ -223,6 +223,141 @@ var insertProjectInfoKonsFab = function(workbook, db, year, month, callback){
 
 }
 
+var insertProjectInfoOM = function(workbook, db, year, month, callback){
+
+  var sheet_name = workbook.SheetNames[4];
+  var worksheet = workbook.Sheets[sheet_name];
+
+  var result = {
+  	"infoProyek" : {
+  		"alamatProyek" : "",
+  		"pemberiKerja" : "",
+  		"bad" : 0,
+  		"bast" : [],
+  		"cashFlow" : 0,
+  		"divisi" : "",
+  		"idProyek" : "",
+  		"labaKotor" : {
+  			"ra" : 0,
+  			"ri" : 0,
+  			"st" : 0
+  		},
+  		"limaR" : 0,
+  		"lokasiFotoProyek" : [],
+  		"namaProyek" : "",
+  		"nilaiRisikoEkstrim" : 0,
+  		"pdp" : 0,
+  		"persediaan" : 0,
+  		"persenRaProgress" : 0,
+  		"persenRiProgress" : 0,
+  		"persenRiThdRaProgress" : 0,
+  		"piutangRetensi" : 0,
+  		"piutangUsaha" : {
+  			"rp31Sd90" : 0,
+  			"rpKurangDari30" : 0,
+  			"rpLebihDari90" : 0,
+  			"rpPiutangUsaha" : 0,
+  			"salahBuku" : 0
+  		},
+  		"qmsl" : 0,
+  		"rpDeviasi" : 0,
+  		"rpLabaBersih" : {
+  			"ra" : 0,
+  			"ri" : 0
+  		},
+  		"rpOk" : 0,
+  		"rpRaProgress" : 0,
+  		"rpRiProgress" : 0,
+  		"sheLevel" : 0,
+  		"tagihanBrutto" : 0,
+  		"tglMulaiProyek" : "",
+  		"tglSelesaiProyek" : "",
+  		"timProyek" : {
+  			"kasieEnjinering" : "",
+  			"kasieKeuangan" : "",
+  			"kasieKomersial" : "",
+  			"manajerProyek" : "",
+  			"pelut" : ""
+  		}
+  	}
+  };
+
+  var idProyek = worksheet["A2"].v;
+  var namaProyek = worksheet["J3"].v;
+  var projectType = 2; // O & M
+  var status = worksheet["C2"].v;
+
+  var persenRaProgress = worksheet["E2"] ? worksheet["E2"].v : 0;
+  var persenRiProgress = worksheet["F2"] ? worksheet["F2"].v : 0;
+
+  result.infoProyek.idProyek = idProyek;
+  result.infoProyek.namaProyek = namaProyek;
+  result.infoProyek.persenRaProgress = getNumericExcelValue(worksheet, "E2");
+  result.infoProyek.persenRiProgress = getNumericExcelValue(worksheet, "G2");
+  result.infoProyek.labaKotor.ra = getNumericExcelValue(worksheet, "E4");
+  result.infoProyek.labaKotor.ri = getNumericExcelValue(worksheet, "G4");
+  result.infoProyek.rpDeviasi = getNumericExcelValue(worksheet, "E5");
+  result.infoProyek.pdp = getNumericExcelValue(worksheet, "G5");
+  result.infoProyek.bad = getNumericExcelValue(worksheet, "E6");
+  result.infoProyek.rpOk = getNumericExcelValue(worksheet, "G6");
+  result.infoProyek.piutangUsaha.rpPiutangUsaha = getNumericExcelValue(worksheet, "E7");
+  result.infoProyek.piutangRetensi = getNumericExcelValue(worksheet, "G7");
+  result.infoProyek.tagihanBrutto = getNumericExcelValue(worksheet, "E8");
+  result.infoProyek.persediaan = getNumericExcelValue(worksheet, "G8");
+  result.infoProyek.cashFlow = getNumericExcelValue(worksheet, "E9");
+
+  result.infoProyek.alamatProyek = getStringExcelValue(worksheet, "J4");
+  result.infoProyek.pemberiKerja = getStringExcelValue(worksheet, "J5");
+  result.infoProyek.rpOk = getNumericExcelValue(worksheet, "J8");
+  result.infoProyek.tglMulaiProyek = getStringExcelValue(worksheet, "J9");
+  result.infoProyek.tglSelesaiProyek = getStringExcelValue(worksheet, "L9");
+
+  var bastArray = [];
+  const MAX_BAST = 10;
+  const BAST_ROW_START = 2;
+
+  for(var i=BAST_ROW_START; i<=(BAST_ROW_START + MAX_BAST); i++){
+    var bastName = getStringExcelValue(worksheet, "N" + i);
+    if(bastName != ""){
+      var bastDate = getStringExcelValue(worksheet, "O" + i);
+      var bast = {
+        nama: bastName,
+        tgl: bastDate
+      }
+
+      bastArray.push(bast);
+    }
+  }
+
+  result.infoProyek.bast = bastArray;
+
+  var data = JSON.stringify(result);
+
+  // console.log(data);
+
+  var db_mobile_info_proyek = {
+    id_proyek: idProyek,
+    project_type: projectType,
+    status: status,
+    bulan: month,
+    tahun: year,
+    data_proyek: data
+  };
+
+  db.query('INSERT INTO db_mobile_info_proyek SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [db_mobile_info_proyek, db_mobile_info_proyek], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
+
+}
+
 var insertQmsl = function(workbook, db, year, month, callback){
 
   var sheet_name = workbook.SheetNames[1];
