@@ -103,6 +103,12 @@ exports.readExcel = function (fileName, db, user, reply){
     const month = worksheet['B2'].v;
     const year = worksheet['C2'].v;
 
+    //----
+    var data_progress_sheet_name = workbook.SheetNames[2];
+    var worksheet_data_progress = workbook.Sheets[data_progress_sheet_name];
+    var data_progress = worksheet_data_progress['B1'].v;
+    //----
+
     result = NetProfitResult.netProfitResult;
 
     db.beginTransaction(function(err) {
@@ -149,6 +155,9 @@ exports.readExcel = function (fileName, db, user, reply){
               insertProjectProgress(user, db, year, month, callback);
             },
             function (callback) {
+              insertDataProgress(db, year, month, data_progress, callback);
+            },
+            function (callback) {
 
               db.commit(function(err) {
                 if (err) {
@@ -156,16 +165,19 @@ exports.readExcel = function (fileName, db, user, reply){
                     callback(err);
                   });
                 }
-                reply({status: 'ok'});
+                callback();
               });
 
             }
         ], function(error){
 
-          return db.rollback(function() {
-            reply({status: 'error', message: error}).code(500);
-          });
-
+          if(error){
+            return db.rollback(function() {
+              reply({status: 'error', message: error}).code(500);
+            });
+          }else{
+            reply({status: 'ok'});
+          }
         });
 
     });
@@ -660,4 +672,24 @@ var insertLabaUsaha = function(workbook, db, year, month, callback){
   result.labaUsahaLspLabaRugiLain['lainLain'] = lsp;
 
   callback();
+}
+
+var insertDataProgress = function(db, year, month, progress, callback){
+  var db_mobile_data_progress = {
+    bulan: month,
+    tahun: year,
+    data_progress: progress,
+  };
+
+  db.query('INSERT INTO db_mobile_data_progress SET ? ' +
+  'ON DUPLICATE KEY ' +
+  'UPDATE ? ',
+  [db_mobile_data_progress, db_mobile_data_progress], function(err, result){
+    if(err){
+      console.log(err);
+      callback(err);
+    }else{
+      callback();
+    }
+  });
 }
