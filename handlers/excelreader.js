@@ -492,12 +492,12 @@ var insertLabaKotor = function(workbook, db, year, month, callback){
   result.totalLabaKotor['intern'] = intern;
 
   result.labaKotorLama['lama'] = totalLalu;
-  result.labaKotorLama['eksternIntern'] = eksternLalu;
+  result.labaKotorLama['ekstern'] = eksternLalu;
   result.labaKotorLama['joKso'] = joLalu;
-  result.labaKotorLama['intern'] = internLalu; //???
+  result.labaKotorLama['intern'] = internLalu;
 
   result.labaKotorBaru['baru'] = totalBaru;
-  result.labaKotorBaru['eksternIntern'] = eksternBaru;
+  result.labaKotorBaru['ekstern'] = eksternBaru;
   result.labaKotorBaru['joKso'] = joBaru;
   result.labaKotorBaru['intern'] = internBaru;
 
