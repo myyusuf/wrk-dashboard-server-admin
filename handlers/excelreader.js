@@ -569,13 +569,13 @@ var insertLkPphFinal = function(workbook, db, year, month, callback){
   var first_sheet_name = workbook.SheetNames[0];
   var worksheet = workbook.Sheets[first_sheet_name];
 
-  var eksternLalu = [result.penjualanLama.ekstern, result.pphFinalLama.eksternIntern].reduce(netProfitSubstract);
-  var joLalu = [result.penjualanLama.joKso, result.pphFinalLama.joKso].reduce(netProfitSubstract);
-  var internLalu = [result.penjualanLama.intern, result.pphFinalLama.intern].reduce(netProfitSubstract);
+  var eksternLalu = [result.labaKotorLama.ekstern, result.pphFinalLama.ekstern].reduce(netProfitSubstract);
+  var joLalu = [result.labaKotorLama.joKso, result.pphFinalLama.joKso].reduce(netProfitSubstract);
+  var internLalu = [result.labaKotorLama.intern, result.pphFinalLama.intern].reduce(netProfitSubstract);
 
-  var eksternBaru = [result.penjualanBaru.ekstern, result.pphFinalBaru.eksternIntern].reduce(netProfitSubstract);
-  var joBaru = [result.penjualanBaru.joKso, result.pphFinalBaru.joKso].reduce(netProfitSubstract);
-  var internBaru = [result.penjualanBaru.intern, result.pphFinalBaru.intern].reduce(netProfitSubstract);
+  var eksternBaru = [result.labaKotorBaru.ekstern, result.pphFinalBaru.ekstern].reduce(netProfitSubstract);
+  var joBaru = [result.labaKotorBaru.joKso, result.pphFinalBaru.joKso].reduce(netProfitSubstract);
+  var internBaru = [result.labaKotorBaru.intern, result.pphFinalBaru.intern].reduce(netProfitSubstract);
 
   var totalLaluArray = [eksternLalu, joLalu, internLalu];
   var totalLalu = totalLaluArray.reduce(netProfitAdder);
@@ -596,17 +596,17 @@ var insertLkPphFinal = function(workbook, db, year, month, callback){
   var intern = internArray.reduce(netProfitAdder);
 
   result.totalLabaKotorStlhPphFinal['total'] = total;
-  result.totalLabaKotorStlhPphFinal['nonJoIntegratedEkstern'] = ekstern;
+  result.totalLabaKotorStlhPphFinal['ekstern'] = ekstern;
   result.totalLabaKotorStlhPphFinal['joKso'] = jo;
   result.totalLabaKotorStlhPphFinal['intern'] = intern;
 
   result.labaKotorStlhPphFinalLama['lama'] = totalLalu;
-  result.labaKotorStlhPphFinalLama['eksternIntern'] = eksternLalu;
+  result.labaKotorStlhPphFinalLama['ekstern'] = eksternLalu;
   result.labaKotorStlhPphFinalLama['joKso'] = joLalu;
   result.labaKotorStlhPphFinalLama['intern'] = internLalu;
 
   result.labaKotorStlhPphFinalBaru['baru'] = totalBaru;
-  result.labaKotorStlhPphFinalBaru['eksternIntern'] = eksternBaru;
+  result.labaKotorStlhPphFinalBaru['ekstern'] = eksternBaru;
   result.labaKotorStlhPphFinalBaru['joKso'] = joBaru;
   result.labaKotorStlhPphFinalBaru['intern'] = internBaru;
 
