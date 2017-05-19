@@ -509,24 +509,24 @@ var insertPphFinal = function(workbook, db, year, month, callback){
   var first_sheet_name = workbook.SheetNames[0];
   var worksheet = workbook.Sheets[first_sheet_name];
 
-  var getPphFinal = function(obj){
+  var getPphFinal = function(obj, percentage){
     return {
-      "rkap": obj.rkap * 0.03,
-      "raSdSaatIni": obj.raSdSaatIni * 0.03,
-      "riSaatIni": obj.riSaatIni * 0.03,
-      "persenRiThdRa": obj.persenRiThdRa * 0.03,
-      "prognosa": obj.prognosa * 0.03,
-      "persenPrognosa": 0
+      "rkap": obj.rkap * percentage,
+      "raSdSaatIni": obj.raSdSaatIni * percentage,
+      "riSaatIni": obj.riSaatIni * percentage,
+      "persenRiThdRa": obj.persenRiThdRa * percentage,
+      "prognosa": obj.prognosa * percentage,
+      "persenPrognosa": obj.persenPrognosa * percentage
     };
   }
 
-  var eksternLalu = getPphFinal(result.penjualanLama.ekstern);
-  var joLalu = getPphFinal(result.penjualanLama.joKso);
-  var internLalu = getPphFinal(result.penjualanLama.intern);
+  var eksternLalu = getPphFinal(result.penjualanLama.ekstern, 0.03);
+  var joLalu = getPphFinal(result.penjualanLama.joKso, 0);
+  var internLalu = getPphFinal(result.penjualanLama.intern, 0.03);
 
-  var eksternBaru = getPphFinal(result.penjualanBaru.ekstern);
-  var joBaru = getPphFinal(result.penjualanBaru.joKso);
-  var internBaru = getPphFinal(result.penjualanBaru.intern);
+  var eksternBaru = getPphFinal(result.penjualanBaru.ekstern, 0.03);
+  var joBaru = getPphFinal(result.penjualanBaru.joKso, 0);
+  var internBaru = getPphFinal(result.penjualanBaru.intern, 0.03);
 
   var totalLaluArray = [eksternLalu, joLalu, internLalu];
   var totalLalu = totalLaluArray.reduce(netProfitAdder);
@@ -552,12 +552,12 @@ var insertPphFinal = function(workbook, db, year, month, callback){
   result.totalPphFinal['intern'] = intern;
 
   result.pphFinalLama['lama'] = totalLalu;
-  result.pphFinalLama['eksternIntern'] = eksternLalu;
+  result.pphFinalLama['ekstern'] = eksternLalu;
   result.pphFinalLama['joKso'] = joLalu;
   result.pphFinalLama['intern'] = internLalu;
 
   result.pphFinalBaru['baru'] = totalBaru;
-  result.pphFinalBaru['eksternIntern'] = eksternBaru;
+  result.pphFinalBaru['ekstern'] = eksternBaru;
   result.pphFinalBaru['joKso'] = joBaru;
   result.pphFinalBaru['intern'] = internBaru;
 
