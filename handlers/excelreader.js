@@ -156,27 +156,22 @@ exports.readExcel = function (fileName, db, user, reply){
             },
             function (callback) {
               insertDataProgress(db, year, month, data_progress, callback);
-            },
-            function (callback) {
-
-              db.commit(function(err) {
-                if (err) {
-                  return db.rollback(function() {
-                    callback(err);
-                  });
-                }
-                callback();
-              });
-
             }
-        ], function(error){
+        ], function(error) {
 
           if(error){
             return db.rollback(function() {
               reply({status: 'error', message: error}).code(500);
             });
           }else{
-            reply({status: 'ok'});
+            db.commit(function(err) {
+              if (err) {
+                return db.rollback(function() {
+                  reply({status: 'error', message: error}).code(500);
+                });
+              }
+              reply({status: 'ok'});
+            });
           }
         });
 

@@ -31,35 +31,34 @@ exports.readExcel = function (fileName, db, user, reply){
               insertProjectProgress(user, db, year, month, idProyek, callback);
             },
             function (callback) {
-              insertProjectInfo(workbook, db, year, month, callback);
+              insertProjectInfo(workbook, db, year, month, idProyek, callback);
             },
             function (callback) {
-              insertQmsl(workbook, db, year, month, callback);
+              insertQmsl(workbook, db, year, month, idProyek, callback);
             },
             function (callback) {
-              insertSheLevel(workbook, db, year, month, callback);
+              insertSheLevel(workbook, db, year, month, idProyek, callback);
             },
             function (callback) {
-              insertLimaR(workbook, db, year, month, callback);
-            },
-            function (callback) {
-
-              db.commit(function(err) {
-                if (err) {
-                  return db.rollback(function() {
-                    callback(err);
-                  });
-                }
-                reply({status: 'ok'});
-              });
-
+              insertLimaR(workbook, db, year, month, idProyek, callback);
             }
         ], function(error){
-          console.log(error);
-          return db.rollback(function() {
-            reply({status: 'error', message: error}).code(500);
-          });
 
+          if(error){
+            console.log(error);
+            return db.rollback(function() {
+              reply({status: 'error', message: error}).code(500);
+            });
+          }else{
+            db.commit(function(err) {
+              if (err) {
+                return db.rollback(function() {
+                  reply({status: 'error', message: error}).code(500);
+                });
+              }
+              reply({status: 'ok'});
+            });
+          }
         });
 
     });
@@ -88,7 +87,7 @@ var insertProjectProgress = function(user, db, year, month, idProyek, callback){
   });
 }
 
-var insertProjectInfo = function(workbook, db, year, month, callback){
+var insertProjectInfo = function(workbook, db, year, month, idProyek, callback){
 
   var sheet_name = workbook.SheetNames[1];
   var worksheet = workbook.Sheets[sheet_name];
@@ -118,12 +117,8 @@ var insertProjectInfo = function(workbook, db, year, month, callback){
   		"persenRiThdRaProgress" : 0,
   		"piutangRetensi" : 0,
   		"piutangUsaha" : {
-  			"rp31Sd90" : 0,
-  			"rpKurangDari30" : 0,
-  			"rpLebihDari90" : 0,
-  			"rpPiutangUsaha" : 0,
-  			"salahBuku" : 0
-  		},
+        "rpPiutangUsaha": 0,
+      },
   		"qmsl" : 0,
   		"rpDeviasi" : 0,
   		"rpLabaBersih" : {
@@ -147,7 +142,6 @@ var insertProjectInfo = function(workbook, db, year, month, callback){
   	}
   };
 
-  var idProyek = worksheet["A2"].v;
   var namaProyek = worksheet["J3"].v;
   var projectType = worksheet["C2"].v;
   var status = worksheet["L29"].v;
@@ -157,8 +151,8 @@ var insertProjectInfo = function(workbook, db, year, month, callback){
 
   result.infoProyek.idProyek = idProyek;
   result.infoProyek.namaProyek = namaProyek;
-  result.infoProyek.persenRaProgress = getNumericExcelValue(worksheet, "E2");
-  result.infoProyek.persenRiProgress = getNumericExcelValue(worksheet, "G2");
+  result.infoProyek.rpRaProgress = getNumericExcelValue(worksheet, "E2");
+  result.infoProyek.rpRiProgress = getNumericExcelValue(worksheet, "G2");
   result.infoProyek.labaKotor.ra = getNumericExcelValue(worksheet, "E4");
   result.infoProyek.labaKotor.ri = getNumericExcelValue(worksheet, "G4");
   result.infoProyek.rpDeviasi = getNumericExcelValue(worksheet, "E5");
@@ -176,6 +170,14 @@ var insertProjectInfo = function(workbook, db, year, month, callback){
   result.infoProyek.rpOk = getNumericExcelValue(worksheet, "J8");
   result.infoProyek.tglMulaiProyek = getStringExcelValue(worksheet, "J9");
   result.infoProyek.tglSelesaiProyek = getStringExcelValue(worksheet, "L9");
+
+  result.infoProyek.timProyek = {
+    kasieEnjinering: getStringExcelValue(worksheet, "L14"),
+    kasieKeuangan: getStringExcelValue(worksheet, "J13"),
+    kasieKomersial: getStringExcelValue(worksheet, "L13"),
+    manajerProyek: getStringExcelValue(worksheet, "J12"),
+    pelut: getStringExcelValue(worksheet, "J14"),
+  }
 
   var bastArray = [];
   const MAX_BAST = 10;
@@ -223,7 +225,7 @@ var insertProjectInfo = function(workbook, db, year, month, callback){
 
 }
 
-var insertQmsl = function(workbook, db, year, month, callback){
+var insertQmsl = function(workbook, db, year, month, idProyek, callback){
 
   var sheet_name = workbook.SheetNames[2];
   var worksheet = workbook.Sheets[sheet_name];
@@ -237,16 +239,18 @@ var insertQmsl = function(workbook, db, year, month, callback){
 
     if(captionIdexes.indexOf(i) == -1){
       var captionCellName = "B" + i;
-      var valueCellName = "C" + i;
+      var bobotCellName = "C" + i;
+      var nilaiCellName = "D" + i;
 
       var uraian = getStringExcelValue(worksheet, captionCellName).substring(3);
-      var value = getNumericExcelValue(worksheet, valueCellName);
+      var bobot = getNumericExcelValue(worksheet, bobotCellName);
+      var nilai = getNumericExcelValue(worksheet, nilaiCellName);
 
       var qmslObj = {
-        "kriteria": uraian,
-        "avgVal": value,
-        "trend": "=",
-        "avgRank": 0
+        "uraian": uraian,
+        "bobot": bobot,
+        "nilai": nilai,
+        "score": bobot * nilai
       }
 
       result.qmsl.push(qmslObj);
@@ -255,10 +259,6 @@ var insertQmsl = function(workbook, db, year, month, callback){
   }
 
   var data = JSON.stringify(result);
-
-  var idProyek = worksheet["B1"].v;
-
-  // console.log(data);
 
   var db_mobile_qmsl = {
     id_proyek: idProyek,
@@ -281,7 +281,7 @@ var insertQmsl = function(workbook, db, year, month, callback){
 
 }
 
-var insertSheLevel = function(workbook, db, year, month, callback){
+var insertSheLevel = function(workbook, db, year, month, idProyek, callback){
 
   var sheet_name = workbook.SheetNames[3];
   var worksheet = workbook.Sheets[sheet_name];
@@ -296,16 +296,18 @@ var insertSheLevel = function(workbook, db, year, month, callback){
 
     if(captionIdexes.indexOf(i) == -1){
       var captionCellName = "B" + i;
-      var valueCellName = "C" + i;
+      var bobotCellName = "C" + i;
+      var nilaiCellName = "D" + i;
 
       var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
-      var value = getNumericExcelValue(worksheet, valueCellName);
+      var bobot = getNumericExcelValue(worksheet, bobotCellName);
+      var nilai = getNumericExcelValue(worksheet, nilaiCellName);
 
       var sheObj = {
-        "kriteria": uraian,
-        "avgVal": value,
-        "trend": "=",
-        "avgRank": 0
+        "uraian": uraian,
+        "bobot": bobot,
+        "nilai": nilai,
+        "score": bobot * nilai
       }
 
       result.sheLevel.push(sheObj);
@@ -314,8 +316,6 @@ var insertSheLevel = function(workbook, db, year, month, callback){
   }
 
   var data = JSON.stringify(result);
-
-  var idProyek = worksheet["B1"].v;
 
   var db_mobile_she_level = {
     id_proyek: idProyek,
@@ -338,7 +338,7 @@ var insertSheLevel = function(workbook, db, year, month, callback){
 
 }
 
-var insertLimaR = function(workbook, db, year, month, callback){
+var insertLimaR = function(workbook, db, year, month, idProyek, callback){
 
   var sheet_name = workbook.SheetNames[4];
   var worksheet = workbook.Sheets[sheet_name];
@@ -353,26 +353,26 @@ var insertLimaR = function(workbook, db, year, month, callback){
 
     if(captionIdexes.indexOf(i) == -1){
       var captionCellName = "B" + i;
-      var valueCellName = "C" + i;
+      var bobotCellName = "C" + i;
+      var nilaiCellName = "D" + i;
 
       var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
-      var value = getNumericExcelValue(worksheet, valueCellName);
+      var bobot = getNumericExcelValue(worksheet, bobotCellName);
+      var nilai = getNumericExcelValue(worksheet, nilaiCellName);
 
-      var sheObj = {
-        "kriteria": uraian,
-        "avgVal": value,
-        "trend": "=",
-        "avgRank": 0
+      var limaRObj = {
+        "uraian": uraian,
+        "bobot": bobot,
+        "nilai": nilai,
+        "score": bobot * nilai
       }
 
-      result.limaR.push(sheObj);
+      result.limaR.push(limaRObj);
     }
 
   }
 
   var data = JSON.stringify(result);
-
-  var idProyek = worksheet["B1"].v;
 
   var db_mobile_lima_r = {
     id_proyek: idProyek,
