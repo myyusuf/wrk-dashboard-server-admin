@@ -667,9 +667,9 @@ var insertLabaUsaha = function(workbook, db, year, month, callback){
   result.labaUsaha['labaUsaha']['prognosa'] = labaUsaha.prognosa;
   result.labaUsaha['labaUsaha']['persenPrognosa'] = labaUsaha.persenPrognosa;
 
-  result.labaUsahaLspLabaRugiLain['labaRugiLain'] = labaRugiLain;
   result.labaUsahaLspLabaRugiLain['bunga'] = bunga;
-  result.labaUsahaLspLabaRugiLain['lainLain'] = lsp;
+  result.labaUsahaLspLabaRugiLain['labaRugiLain'] = labaRugiLain;
+  result.labaUsahaLspLabaRugiLain['lsp'] = lsp;
 
   callback();
 }
