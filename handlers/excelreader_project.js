@@ -7,6 +7,10 @@ var getNumericExcelValue = function(ws, cellName){
   return ws[cellName] ? ws[cellName].v : 0;
 }
 
+var getNumericExcelValueMinusAsDefault = function(ws, cellName){
+  return ws[cellName] ? ws[cellName].v : -1;
+}
+
 var getStringExcelValue = function(ws, cellName){
   return ws[cellName] ? ws[cellName].v : "";
 }
@@ -235,26 +239,43 @@ var insertQmsl = function(workbook, db, year, month, idProyek, callback){
   };
 
   var captionIdexes = [10, 11, 17, 18, 28, 29, 31, 32, 39, 40, 45, 46, 51, 52];
-  for(var i=6; i<=58; i++){
+  for(var i=5; i<=60; i++){
 
-    if(captionIdexes.indexOf(i) == -1){
-      var captionCellName = "B" + i;
-      var bobotCellName = "C" + i;
-      var nilaiCellName = "D" + i;
+    // if(captionIdexes.indexOf(i) == -1){
+    //   var captionCellName = "B" + i;
+    //   var bobotCellName = "C" + i;
+    //   var nilaiCellName = "D" + i;
+    //
+    //   var uraian = getStringExcelValue(worksheet, captionCellName).substring(3);
+    //   var bobot = getNumericExcelValue(worksheet, bobotCellName);
+    //   var nilai = getNumericExcelValue(worksheet, nilaiCellName);
+    //
+    //   var qmslObj = {
+    //     "uraian": uraian,
+    //     "bobot": bobot,
+    //     "nilai": nilai,
+    //     "score": bobot * nilai
+    //   }
+    //
+    //   result.qmsl.push(qmslObj);
+    // }
 
-      var uraian = getStringExcelValue(worksheet, captionCellName).substring(3);
-      var bobot = getNumericExcelValue(worksheet, bobotCellName);
-      var nilai = getNumericExcelValue(worksheet, nilaiCellName);
+    var captionCellName = "B" + i;
+    var bobotCellName = "C" + i;
+    var nilaiCellName = "D" + i;
 
-      var qmslObj = {
-        "uraian": uraian,
-        "bobot": bobot,
-        "nilai": nilai,
-        "score": bobot * nilai
-      }
+    var uraian = getStringExcelValue(worksheet, captionCellName);
+    var bobot = getNumericExcelValueMinusAsDefault(worksheet, bobotCellName);
+    var nilai = getNumericExcelValueMinusAsDefault(worksheet, nilaiCellName);
 
-      result.qmsl.push(qmslObj);
+    var qmslObj = {
+      "uraian": uraian,
+      "bobot": bobot,
+      "nilai": nilai,
+      "score": bobot * nilai
     }
+
+    result.qmsl.push(qmslObj);
 
   }
 
