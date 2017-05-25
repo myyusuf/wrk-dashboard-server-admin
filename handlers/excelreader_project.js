@@ -238,7 +238,7 @@ var insertQmsl = function(workbook, db, year, month, idProyek, callback){
     "qmsl": []
   };
 
-  var captionIdexes = [10, 11, 17, 18, 28, 29, 31, 32, 39, 40, 45, 46, 51, 52];
+  // var captionIdexes = [10, 11, 17, 18, 28, 29, 31, 32, 39, 40, 45, 46, 51, 52];
   for(var i=5; i<=60; i++){
 
     // if(captionIdexes.indexOf(i) == -1){
@@ -311,28 +311,45 @@ var insertSheLevel = function(workbook, db, year, month, idProyek, callback){
     "sheLevel": []
   };
 
-  var captionIdexes = [7, 8, 14, 15, 19, 26, 30, 41, 42, 45, 55, 56, 58, 59, 61, 62, 63, 70, 77, 82];
+  // var captionIdexes = [7, 8, 14, 15, 19, 26, 30, 41, 42, 45, 55, 56, 58, 59, 61, 62, 63, 70, 77, 82];
 
-  for(var i=6; i<=87; i++){
+  for(var i=5; i<=89; i++){
 
-    if(captionIdexes.indexOf(i) == -1){
-      var captionCellName = "B" + i;
-      var bobotCellName = "C" + i;
-      var nilaiCellName = "D" + i;
+    // if(captionIdexes.indexOf(i) == -1){
+    //   var captionCellName = "B" + i;
+    //   var bobotCellName = "C" + i;
+    //   var nilaiCellName = "D" + i;
+    //
+    //   var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
+    //   var bobot = getNumericExcelValue(worksheet, bobotCellName);
+    //   var nilai = getNumericExcelValue(worksheet, nilaiCellName);
+    //
+    //   var sheObj = {
+    //     "uraian": uraian,
+    //     "bobot": bobot,
+    //     "nilai": nilai,
+    //     "score": bobot * nilai
+    //   }
+    //
+    //   result.sheLevel.push(sheObj);
+    // }
 
-      var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
-      var bobot = getNumericExcelValue(worksheet, bobotCellName);
-      var nilai = getNumericExcelValue(worksheet, nilaiCellName);
+    var captionCellName = "B" + i;
+    var bobotCellName = "C" + i;
+    var nilaiCellName = "D" + i;
 
-      var sheObj = {
-        "uraian": uraian,
-        "bobot": bobot,
-        "nilai": nilai,
-        "score": bobot * nilai
-      }
+    var uraian = getStringExcelValue(worksheet, captionCellName).trim();
+    var bobot = getNumericExcelValueMinusAsDefault(worksheet, bobotCellName);
+    var nilai = getNumericExcelValueMinusAsDefault(worksheet, nilaiCellName);
 
-      result.sheLevel.push(sheObj);
+    var sheObj = {
+      "uraian": uraian,
+      "bobot": bobot,
+      "nilai": nilai,
+      "score": bobot * nilai
     }
+
+    result.sheLevel.push(sheObj);
 
   }
 
@@ -368,28 +385,45 @@ var insertLimaR = function(workbook, db, year, month, idProyek, callback){
     "limaR": []
   };
 
-  var captionIdexes = [8, 14, 21];
+  // var captionIdexes = [8, 14, 21];
 
-  for(var i=6; i<=142; i++){
+  for(var i=5; i<=142; i++){
 
-    if(captionIdexes.indexOf(i) == -1){
-      var captionCellName = "B" + i;
-      var bobotCellName = "C" + i;
-      var nilaiCellName = "D" + i;
+    // if(captionIdexes.indexOf(i) == -1){
+    //   var captionCellName = "B" + i;
+    //   var bobotCellName = "C" + i;
+    //   var nilaiCellName = "D" + i;
+    //
+    //   var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
+    //   var bobot = getNumericExcelValue(worksheet, bobotCellName);
+    //   var nilai = getNumericExcelValue(worksheet, nilaiCellName);
+    //
+    //   var limaRObj = {
+    //     "uraian": uraian,
+    //     "bobot": bobot,
+    //     "nilai": nilai,
+    //     "score": bobot * nilai
+    //   }
+    //
+    //   result.limaR.push(limaRObj);
+    // }
 
-      var uraian = getStringExcelValue(worksheet, captionCellName).trim().substring(3);
-      var bobot = getNumericExcelValue(worksheet, bobotCellName);
-      var nilai = getNumericExcelValue(worksheet, nilaiCellName);
+    var captionCellName = "B" + i;
+    var bobotCellName = "C" + i;
+    var nilaiCellName = "D" + i;
 
-      var limaRObj = {
-        "uraian": uraian,
-        "bobot": bobot,
-        "nilai": nilai,
-        "score": bobot * nilai
-      }
+    var uraian = getStringExcelValue(worksheet, captionCellName);
+    var bobot = getNumericExcelValueMinusAsDefault(worksheet, bobotCellName);
+    var nilai = getNumericExcelValueMinusAsDefault(worksheet, nilaiCellName);
 
-      result.limaR.push(limaRObj);
+    var limaRObj = {
+      "uraian": uraian,
+      "bobot": bobot,
+      "nilai": nilai,
+      "score": bobot * nilai
     }
+
+    result.limaR.push(limaRObj);
 
   }
 
